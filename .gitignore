@@ -1,0 +1,5 @@
+*.obj
+/build/.bin_timestamp
+/build/bootloader/.bin_timestamp
+*.out
+/build/
