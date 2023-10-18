@@ -5,6 +5,7 @@
 #include "freertos/task.h"
 #include "freertos/event_groups.h"
 #include "esp_system.h"
+#include "string.h"
 #include "esp_event.h"
 #include "esp_log.h"
 #include "nvs_flash.h"
@@ -14,8 +15,11 @@
    If you'd rather not, just change the below entries to strings with
    the config you want - ie #define EXAMPLE_WIFI_SSID "mywifissid"
 */
-#define EXAMPLE_ESP_WIFI_SSID      CONFIG_ESP_WIFI_SSID
-#define EXAMPLE_ESP_WIFI_PASS      CONFIG_ESP_WIFI_PASSWORD
+#define EXAMPLE_ESP_WIFI_SSID_1      "Keenetic-0086"
+#define EXAMPLE_ESP_WIFI_PASS_1      "yu8tp06p"
+#define EXAMPLE_ESP_WIFI_SSID_2      CONFIG_ESP_WIFI_SSID
+#define EXAMPLE_ESP_WIFI_PASS_2      CONFIG_ESP_WIFI_PASSWORD
+
 #define EXAMPLE_ESP_MAXIMUM_RETRY  CONFIG_ESP_MAXIMUM_RETRY
 
 #if CONFIG_ESP_WIFI_AUTH_OPEN
@@ -46,8 +50,12 @@ static EventGroupHandle_t s_wifi_event_group;
 #define WIFI_FAIL_BIT      BIT1
 
 
-int s_retry_num;
+int s_retry_num=0;
+int s_retry_ap_count=0;
+
 static const char *TAG = "wifi";
+char szApName[2][32]={EXAMPLE_ESP_WIFI_SSID_1,EXAMPLE_ESP_WIFI_SSID_2};
+char szApPass[2][32]={EXAMPLE_ESP_WIFI_PASS_1,EXAMPLE_ESP_WIFI_PASS_2};
 
 static void event_handler(void* arg, esp_event_base_t event_base,
                                 int32_t event_id, void* event_data)
@@ -62,10 +70,29 @@ static void event_handler(void* arg, esp_event_base_t event_base,
 
         } else {
 
-        	ESP_LOGI(TAG,"connect to the AP fail");
-            ESP_LOGI(TAG, "reboot");
-            esp_restart();
-            xEventGroupSetBits(s_wifi_event_group, WIFI_FAIL_BIT);
+        	if (s_retry_ap_count==0)
+        	{
+        		s_retry_num=0;
+        		s_retry_ap_count++;
+        		wifi_config_t wifi_config;
+        		memset((void*)&wifi_config,0,sizeof(wifi_config));
+        		snprintf((char*)wifi_config.sta.ssid,sizeof(wifi_config.sta.ssid),"%s",szApName[s_retry_ap_count]);
+        		snprintf((char*)wifi_config.sta.password,sizeof(wifi_config.sta.password),"%s",szApPass[s_retry_ap_count]);
+        		wifi_config.sta.threshold.authmode = ESP_WIFI_SCAN_AUTH_MODE_THRESHOLD;
+        		wifi_config.sta.sae_pwe_h2e = WPA3_SAE_PWE_BOTH;
+
+        	    ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_config) );
+                esp_wifi_connect();
+                s_retry_num++;
+
+        	}
+        	else
+        	{
+				ESP_LOGI(TAG,"connect to the AP fail");
+				ESP_LOGI(TAG, "reboot");
+				esp_restart();
+				xEventGroupSetBits(s_wifi_event_group, WIFI_FAIL_BIT);
+        	}
 
 
         }
@@ -103,19 +130,13 @@ void wifi_init_sta(void)
                                                         NULL,
                                                         &instance_got_ip));
 
-    wifi_config_t wifi_config = {
-        .sta = {
-            .ssid = EXAMPLE_ESP_WIFI_SSID,
-            .password = EXAMPLE_ESP_WIFI_PASS,
-            /* Authmode threshold resets to WPA2 as default if password matches WPA2 standards (pasword len => 8).
-             * If you want to connect the device to deprecated WEP/WPA networks, Please set the threshold value
-             * to WIFI_AUTH_WEP/WIFI_AUTH_WPA_PSK and set the password with length and format matching to
-	     * WIFI_AUTH_WEP/WIFI_AUTH_WPA_PSK standards.
-             */
-            .threshold.authmode = ESP_WIFI_SCAN_AUTH_MODE_THRESHOLD,
-            .sae_pwe_h2e = WPA3_SAE_PWE_BOTH,
-        },
-    };
+	wifi_config_t wifi_config;
+	memset((void*)&wifi_config,0,sizeof(wifi_config));
+	snprintf((char*)wifi_config.sta.ssid,sizeof(wifi_config.sta.ssid),"%s",szApName[s_retry_ap_count]);
+	snprintf((char*)wifi_config.sta.password,sizeof(wifi_config.sta.password),"%s",szApPass[s_retry_ap_count]);
+	wifi_config.sta.threshold.authmode = ESP_WIFI_SCAN_AUTH_MODE_THRESHOLD;
+	wifi_config.sta.sae_pwe_h2e = WPA3_SAE_PWE_BOTH;
+
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA) );
     ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_config) );
     ESP_ERROR_CHECK(esp_wifi_start() );
@@ -134,10 +155,10 @@ void wifi_init_sta(void)
      * happened. */
     if (bits & WIFI_CONNECTED_BIT) {
         ESP_LOGI(TAG, "connected to ap SSID:%s password:%s",
-                 EXAMPLE_ESP_WIFI_SSID, EXAMPLE_ESP_WIFI_PASS);
+        		szApName[s_retry_ap_count], szApPass[s_retry_ap_count]);
     } else if (bits & WIFI_FAIL_BIT) {
         ESP_LOGI(TAG, "Failed to connect to SSID:%s, password:%s",
-                 EXAMPLE_ESP_WIFI_SSID, EXAMPLE_ESP_WIFI_PASS);
+        		szApName[s_retry_ap_count], szApPass[s_retry_ap_count]);
 
 
     } else {

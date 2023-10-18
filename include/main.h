@@ -20,6 +20,7 @@ extern "C" {
 		uint8_t GetSwitchState(uint8_t pin);
 		void ChangeSwitchMode(uint8_t pin);
 		uint8_t GetSwitchMode(uint8_t pin);
+		uint8_t GetSwitchPin(uint8_t pin);
 
 
 #ifdef __cplusplus
