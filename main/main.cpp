@@ -111,6 +111,21 @@ void ChangeSwitchState(uint8_t pin)
 	}
 
 }
+uint8_t GetSwitchPin(uint8_t pin)
+{
+	switch(pin)
+	{
+		case 0: return GPIO_OUTPUT_IO_0;
+		case 1: return GPIO_OUTPUT_IO_1;
+		case 2: return GPIO_OUTPUT_IO_2;
+		case 3: return GPIO_OUTPUT_IO_3;
+		case 4: return GPIO_OUTPUT_IO_4;
+
+	}
+	return 0xFF;
+
+
+}
 void ChangeSwitchMode(uint8_t pin)
 {
 
@@ -237,13 +252,13 @@ void Timer_Switch_State(void *pvParameter)
 					{
 						if (SensorInfo[Switch_Source[i]].SensorData.temperature<=Switch_Temp_Low[i])
 						{
-							gpio_set_level(static_cast<gpio_num_t>(GPIO_OUTPUT_IO_0+i),1);
+							gpio_set_level(static_cast<gpio_num_t>(GetSwitchPin(i)),1);
 							Switch_State[i]=1;
 						}
 						else
 							if (SensorInfo[Switch_Source[i]].SensorData.temperature>=Switch_Temp_High[i])
 							{
-								gpio_set_level(static_cast<gpio_num_t>(GPIO_OUTPUT_IO_0+i),0);
+								gpio_set_level(static_cast<gpio_num_t>(GetSwitchPin(i)),0);
 								Switch_State[i]=0;
 							}
 
@@ -251,7 +266,7 @@ void Timer_Switch_State(void *pvParameter)
 				}
 				else
 				{
-					gpio_set_level(static_cast<gpio_num_t>(GPIO_OUTPUT_IO_0+i),0);
+					gpio_set_level(static_cast<gpio_num_t>(GetSwitchPin(i)),0);
 					Switch_State[i]=0;
 
 
