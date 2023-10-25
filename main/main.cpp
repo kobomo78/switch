@@ -306,6 +306,8 @@ void app_main(void)
     {
     	xTaskCreate(&Server_Exchange, "Server_Exchange", 4096, NULL, 5, NULL );
     	xTaskCreate(&Server_Receive, "Server_Receive", 4096, NULL, 5, NULL );
+    	xTaskCreate(&Server_Save_Data, "Server_Save_Data", 4096, NULL, 5, NULL );
+
     }
 
 

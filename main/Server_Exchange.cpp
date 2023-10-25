@@ -7,6 +7,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_netif.h"
+#include "math.h"
 #include "lwip/err.h"
 #include "lwip/sockets.h"
 #include "lwip/sys.h"
@@ -14,11 +15,16 @@
 #include "esp_log.h"
 #include "protocol.h"
 #include "blynk_management.h"
+#include "cJSON.h"
 
 
 
 #define HOST_IP_ADDR "192.168.5.255"
 #define PORT		 34004
+
+#define SERVER_DATA_IP_ADDR "109.194.141.27"
+#define SERVER_DATA_PORT	 34004
+
 
 static const char *TAG = "Server_Exchange";
 int sock=0;
@@ -41,6 +47,59 @@ bool SocketInit(void)
 	}
 
 	return true;
+
+}
+void Server_Save_Data(void *pvParameter)
+{
+
+	struct sockaddr_in dest_addr;
+	dest_addr.sin_addr.s_addr = inet_addr(SERVER_DATA_IP_ADDR);
+	dest_addr.sin_family = AF_INET;
+	dest_addr.sin_port = htons(SERVER_DATA_PORT);
+
+
+    	while(1)
+    	{
+
+    		char data[512];
+
+    		cJSON *root,*fmt;
+   			root = cJSON_CreateObject();
+   			bool bNeedSend=false;
+
+   			for(uint8_t i=0;i<SENSOR_COUNT;i++)
+   			{
+   				if (SensorInfo[i].timer_no_data)
+   				{
+					char str[16];
+					snprintf(str,sizeof(str),"sensor_%d",i);
+					cJSON_AddItemToObject(root, str, fmt=cJSON_CreateObject());
+					snprintf(str,sizeof(str),"%.1f",SensorInfo[i].SensorData.temperature);
+					cJSON_AddStringToObject(fmt,"temperature",str);
+					snprintf(str,sizeof(str),"%.1f",SensorInfo[i].SensorData.humidity);
+					cJSON_AddStringToObject(fmt,"humidity",str);
+		   			bNeedSend=true;
+   				}
+
+   			}
+
+   			if (bNeedSend)
+   			{
+   				char *my_json_string = cJSON_Print(root);
+   				//ESP_LOGI(TAG, "my_json_string\n%s",my_json_string);
+
+   				int err = sendto(sock, my_json_string, strlen(my_json_string), 0, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
+	            	if (err < 0) {
+	            		ESP_LOGE(TAG, "Error occurred during sending: errno %d (%s)", errno,esp_err_to_name(errno));
+	            	}
+   			}
+
+   			cJSON_Delete(root);
+
+	        vTaskDelay(2000 / portTICK_PERIOD_MS);
+	    }
+
+	    vTaskDelete(NULL);
 
 }
 void Server_Exchange(void *pvParameter)
