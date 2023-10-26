@@ -103,7 +103,7 @@ void Server_Save_Data(void *pvParameter)
 
    			cJSON_Delete(root);
 
-	        vTaskDelay(2000 / portTICK_PERIOD_MS);
+	        vTaskDelay(60000 / portTICK_PERIOD_MS);
 	    }
 
 	    vTaskDelete(NULL);
