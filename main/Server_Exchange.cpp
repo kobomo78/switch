@@ -82,8 +82,8 @@ void Server_Save_Data(void *pvParameter)
 	   				}
 	   				else
 	   				{
-						cJSON_AddStringToObject(fmt,"temperature","-");
-						cJSON_AddStringToObject(fmt,"humidity","-");
+						cJSON_AddStringToObject(fmt,"temperature","0");
+						cJSON_AddStringToObject(fmt,"humidity","0");
 
 	   				}
 
