@@ -15,10 +15,14 @@
    If you'd rather not, just change the below entries to strings with
    the config you want - ie #define EXAMPLE_WIFI_SSID "mywifissid"
 */
+#define DEFAULT_SCAN_LIST_SIZE       15
+#define EXAMPLE_ESP_WIFI_APP_COUNT   3
 #define EXAMPLE_ESP_WIFI_SSID_1      "Keenetic-0086"
 #define EXAMPLE_ESP_WIFI_PASS_1      "yu8tp06p"
 #define EXAMPLE_ESP_WIFI_SSID_2      CONFIG_ESP_WIFI_SSID
 #define EXAMPLE_ESP_WIFI_PASS_2      CONFIG_ESP_WIFI_PASSWORD
+#define EXAMPLE_ESP_WIFI_SSID_3      "Keenetic-3608-61"
+#define EXAMPLE_ESP_WIFI_PASS_3      "prometey_*168_#61"
 
 #define EXAMPLE_ESP_MAXIMUM_RETRY  CONFIG_ESP_MAXIMUM_RETRY
 
@@ -51,11 +55,15 @@ static EventGroupHandle_t s_wifi_event_group;
 
 
 int s_retry_num=0;
-int s_retry_ap_count=0;
+uint8_t  IndexAppFound=0xFF;
 
 static const char *TAG = "wifi";
-char szApName[2][32]={EXAMPLE_ESP_WIFI_SSID_1,EXAMPLE_ESP_WIFI_SSID_2};
-char szApPass[2][32]={EXAMPLE_ESP_WIFI_PASS_1,EXAMPLE_ESP_WIFI_PASS_2};
+
+char szApName[EXAMPLE_ESP_WIFI_APP_COUNT][32]={EXAMPLE_ESP_WIFI_SSID_1,EXAMPLE_ESP_WIFI_SSID_2,EXAMPLE_ESP_WIFI_SSID_3};
+char szApPass[EXAMPLE_ESP_WIFI_APP_COUNT][32]={EXAMPLE_ESP_WIFI_PASS_1,EXAMPLE_ESP_WIFI_PASS_2,EXAMPLE_ESP_WIFI_PASS_3};
+
+
+
 
 static void event_handler(void* arg, esp_event_base_t event_base,
                                 int32_t event_id, void* event_data)
@@ -70,32 +78,11 @@ static void event_handler(void* arg, esp_event_base_t event_base,
 
         } else {
 
-        	if (s_retry_ap_count==0)
-        	{
-        		s_retry_num=0;
-        		s_retry_ap_count++;
-        		wifi_config_t wifi_config;
-        		memset((void*)&wifi_config,0,sizeof(wifi_config));
-        		snprintf((char*)wifi_config.sta.ssid,sizeof(wifi_config.sta.ssid),"%s",szApName[s_retry_ap_count]);
-        		snprintf((char*)wifi_config.sta.password,sizeof(wifi_config.sta.password),"%s",szApPass[s_retry_ap_count]);
-        		wifi_config.sta.threshold.authmode = ESP_WIFI_SCAN_AUTH_MODE_THRESHOLD;
-        		wifi_config.sta.sae_pwe_h2e = WPA3_SAE_PWE_BOTH;
-
-        	    ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_config) );
-                esp_wifi_connect();
-                s_retry_num++;
-
-        	}
-        	else
-        	{
 				ESP_LOGI(TAG,"connect to the AP fail");
 				ESP_LOGI(TAG, "reboot");
 				esp_restart();
 				xEventGroupSetBits(s_wifi_event_group, WIFI_FAIL_BIT);
-        	}
-
-
-        }
+        		}
 
     } else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
         ip_event_got_ip_t* event = (ip_event_got_ip_t*) event_data;
@@ -108,11 +95,6 @@ static void event_handler(void* arg, esp_event_base_t event_base,
 void wifi_init_sta(void)
 {
     s_wifi_event_group = xEventGroupCreate();
-
-    ESP_ERROR_CHECK(esp_netif_init());
-
-    ESP_ERROR_CHECK(esp_event_loop_create_default());
-    esp_netif_create_default_wifi_sta();
 
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
@@ -132,8 +114,8 @@ void wifi_init_sta(void)
 
 	wifi_config_t wifi_config;
 	memset((void*)&wifi_config,0,sizeof(wifi_config));
-	snprintf((char*)wifi_config.sta.ssid,sizeof(wifi_config.sta.ssid),"%s",szApName[s_retry_ap_count]);
-	snprintf((char*)wifi_config.sta.password,sizeof(wifi_config.sta.password),"%s",szApPass[s_retry_ap_count]);
+	snprintf((char*)wifi_config.sta.ssid,sizeof(wifi_config.sta.ssid),"%s",szApName[IndexAppFound]);
+	snprintf((char*)wifi_config.sta.password,sizeof(wifi_config.sta.password),"%s",szApPass[IndexAppFound]);
 	wifi_config.sta.threshold.authmode = ESP_WIFI_SCAN_AUTH_MODE_THRESHOLD;
 	wifi_config.sta.sae_pwe_h2e = WPA3_SAE_PWE_BOTH;
 
@@ -155,10 +137,10 @@ void wifi_init_sta(void)
      * happened. */
     if (bits & WIFI_CONNECTED_BIT) {
         ESP_LOGI(TAG, "connected to ap SSID:%s password:%s",
-        		szApName[s_retry_ap_count], szApPass[s_retry_ap_count]);
+        		szApName[IndexAppFound], szApPass[IndexAppFound]);
     } else if (bits & WIFI_FAIL_BIT) {
         ESP_LOGI(TAG, "Failed to connect to SSID:%s, password:%s",
-        		szApName[s_retry_ap_count], szApPass[s_retry_ap_count]);
+        		szApName[IndexAppFound], szApPass[IndexAppFound]);
 
 
     } else {
@@ -168,8 +150,48 @@ void wifi_init_sta(void)
 
 void WifiInit(void)
 {
+   ESP_ERROR_CHECK(esp_netif_init());
+   ESP_ERROR_CHECK(esp_event_loop_create_default());
 
+   esp_netif_t *sta_netif = esp_netif_create_default_wifi_sta();
+   assert(sta_netif);
+
+	wifi_scan();
 	wifi_init_sta();
+
+}
+void wifi_scan(void)
+{
+
+    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
+    ESP_ERROR_CHECK(esp_wifi_init(&cfg));
+
+    uint16_t number = DEFAULT_SCAN_LIST_SIZE;
+    wifi_ap_record_t ap_info[DEFAULT_SCAN_LIST_SIZE];
+    uint16_t ap_count = 0;
+    memset(ap_info, 0, sizeof(ap_info));
+
+    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
+    ESP_ERROR_CHECK(esp_wifi_start());
+    esp_wifi_scan_start(NULL, true);
+    ESP_ERROR_CHECK(esp_wifi_scan_get_ap_records(&number, ap_info));
+    ESP_ERROR_CHECK(esp_wifi_scan_get_ap_num(&ap_count));
+    for (int i = 0; (i < DEFAULT_SCAN_LIST_SIZE) && (i < ap_count); i++) {
+        for(uint8_t j=0;j<EXAMPLE_ESP_WIFI_APP_COUNT;j++)
+        	if (strcmp(szApName[j],(char*)ap_info[i].ssid)==0)
+        		IndexAppFound=j;
+    }
+    ESP_ERROR_CHECK(esp_wifi_stop());
+    if (IndexAppFound==0xFF)
+    {
+		ESP_LOGI(TAG,"find the AP fail");
+		ESP_LOGI(TAG, "reboot");
+		esp_restart();
+
+    }
+    else
+    	ESP_LOGI(TAG, "Found App index=%d", IndexAppFound);
 
 
 }
+

@@ -13,6 +13,7 @@
 extern "C" {
 #endif
 
+void wifi_scan(void);
 void WifiInit(void);
 
 
