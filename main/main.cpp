@@ -45,6 +45,7 @@ int8_t		Switch_Temp_Low[COUNT_SWITCH];
 int8_t		Switch_Temp_High[COUNT_SWITCH];
 
 uint32_t   counter=0;
+char WorkTime[64];
 
 char  Ver[16];
 
@@ -55,8 +56,10 @@ void Work_counter(void *pvParameter)
 
 	while(1) {
 		counter++;
-		if (counter==10000)
-			counter=0;
+
+		time_t seconds(counter);
+		tm *p = gmtime(&seconds);
+		snprintf(WorkTime,sizeof(WorkTime),"%d days %d:%d:%d",p->tm_yday,p->tm_hour,p->tm_min,p->tm_sec);
 
 
 		vTaskDelay(1000 / portTICK_PERIOD_MS );

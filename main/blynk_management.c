@@ -9,7 +9,7 @@
 static const char *TAG = "blynk_management";
 
 
-extern uint32_t   		counter;
+extern char WorkTime[64];
 extern char  			Ver[16];
 extern SSensorInfo 		SensorInfo[SENSOR_COUNT];
 extern enum eMode 		Switch_Mode[COUNT_SWITCH];
@@ -161,7 +161,7 @@ void vr_handler(blynk_client_t *c, uint16_t id, const char *cmd, int argc, char 
 		}
 		case VP_COUNTER:
 		{
-			blynk_send(c, BLYNK_CMD_HARDWARE, 0, "sii", "vw", VP_COUNTER, counter);
+			blynk_send(c, BLYNK_CMD_HARDWARE, 0, "sis", "vw", VP_COUNTER, WorkTime);
 			break;
 		}
 		case VP_VERSION:
