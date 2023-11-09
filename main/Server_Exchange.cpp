@@ -10,6 +10,7 @@
 #include "math.h"
 #include "lwip/err.h"
 #include "lwip/sockets.h"
+#include "esp_netif_lwip_internal.h"
 #include "lwip/sys.h"
 #include <lwip/netdb.h>
 #include "esp_log.h"
@@ -19,7 +20,6 @@
 
 
 
-#define HOST_IP_ADDR "192.168.5.255"
 #define PORT		 34004
 
 #define SERVER_DATA_IP_ADDR "109.194.141.27"
@@ -111,8 +111,27 @@ void Server_Save_Data(void *pvParameter)
 }
 void Server_Exchange(void *pvParameter)
 {
+	uint32_t br_addr=0;
+
+      esp_netif_t* esp_netif=NULL;
+
+       do
+        {
+    	   esp_netif=esp_netif_next(esp_netif);
+	        	if (esp_netif)
+	        	{
+	        		if (strcmp(esp_netif->if_key,"WIFI_STA_DEF")==0)
+	        		{
+	        			br_addr=(esp_netif->ip_info->ip.addr&esp_netif->ip_info->netmask.addr)|(~esp_netif->ip_info->netmask.addr);
+	        			break;
+	        		}
+
+
+	        	}
+	        }while(esp_netif);
+
 	struct sockaddr_in dest_addr;
-	dest_addr.sin_addr.s_addr = inet_addr(HOST_IP_ADDR);
+	dest_addr.sin_addr.s_addr = br_addr;
 	dest_addr.sin_family = AF_INET;
 	dest_addr.sin_port = htons(PORT);
 

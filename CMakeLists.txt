@@ -5,6 +5,7 @@ cmake_minimum_required(VERSION 3.16)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake-tools")
 include(CMakeToolsVersionFromGit)
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
+include_directories($ENV{IDF_PATH}/components/esp_netif/lwip)
 
 set(PROJECT_VER ${CMAKE_TOOLS_GIT_TAG})
 

@@ -302,18 +302,19 @@ void app_main(void)
 
     xTaskCreate(&Work_counter, "Work_counter", 2048, NULL, 5, NULL );
 
-    if (SocketInit())
-    {
-    	xTaskCreate(&Server_Exchange, "Server_Exchange", 4096, NULL, 5, NULL );
-    	xTaskCreate(&Server_Receive, "Server_Receive", 4096, NULL, 5, NULL );
-    	xTaskCreate(&Server_Save_Data, "Server_Save_Data", 4096, NULL, 5, NULL );
-
-    }
 
 
 
     Init();
     WifiInit();
+
+    if (SocketInit())
+    	{
+    		xTaskCreate(&Server_Exchange, "Server_Exchange", 4096, NULL, 5, NULL );
+    		xTaskCreate(&Server_Receive, "Server_Receive", 4096, NULL, 5, NULL );
+    		xTaskCreate(&Server_Save_Data, "Server_Save_Data", 4096, NULL, 5, NULL );
+    	}
+
     BlynkInit();
     OtaUpdate.Init();
     xTaskCreate(&Timer_Switch_State, "Timer_Switch_State", 4096, NULL, 5, NULL );
