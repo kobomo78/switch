@@ -19,7 +19,7 @@
 
 
 
-#define HOST_IP_ADDR "192.168.5.255"
+#define HOST_IP_ADDR "192.168.1.255"
 #define PORT		 34004
 
 #define SERVER_DATA_IP_ADDR "109.194.141.27"
