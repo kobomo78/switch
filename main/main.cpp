@@ -249,9 +249,9 @@ void Timer_Switch_State(void *pvParameter)
 		{
 			if (Switch_Mode[i]==AUTO)
 			{
-				if (SensorInfo[i].timer_no_data)
+				if (Switch_Source[i]<COUNT_SWITCH)
 				{
-					if (Switch_Source[i]<COUNT_SWITCH)
+					if (SensorInfo[Switch_Source[i]].timer_no_data)
 					{
 						if (SensorInfo[Switch_Source[i]].SensorData.temperature<=Switch_Temp_Low[i])
 						{
@@ -265,7 +265,17 @@ void Timer_Switch_State(void *pvParameter)
 								Switch_State[i]=0;
 							}
 
+
 					}
+					else
+					{
+
+						gpio_set_level(static_cast<gpio_num_t>(GetSwitchPin(i)),0);
+						Switch_State[i]=0;
+
+					}
+
+
 				}
 				else
 				{
@@ -274,7 +284,6 @@ void Timer_Switch_State(void *pvParameter)
 
 
 				}
-
 
 			}
 
