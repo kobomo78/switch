@@ -246,39 +246,46 @@ void Timer_Switch_State(void *pvParameter)
 		{
 			if (Switch_Mode[i]==AUTO)
 			{
-				if (SensorInfo[i].timer_no_data)
-				{
+
 					if (Switch_Source[i]<COUNT_SWITCH)
 					{
-						if (SensorInfo[Switch_Source[i]].SensorData.temperature<=Switch_Temp_Low[i])
+						if (SensorInfo[Switch_Source[i]].timer_no_data)
 						{
-							gpio_set_level(static_cast<gpio_num_t>(GetSwitchPin(i)),1);
-							Switch_State[i]=1;
+
+							if (SensorInfo[Switch_Source[i]].SensorData.temperature<=Switch_Temp_Low[i])
+							{
+								gpio_set_level(static_cast<gpio_num_t>(GetSwitchPin(i)),1);
+								Switch_State[i]=1;
+							}
+							else
+								if (SensorInfo[Switch_Source[i]].SensorData.temperature>=Switch_Temp_High[i])
+								{
+									gpio_set_level(static_cast<gpio_num_t>(GetSwitchPin(i)),0);
+									Switch_State[i]=0;
+								}
+
 						}
 						else
-							if (SensorInfo[Switch_Source[i]].SensorData.temperature>=Switch_Temp_High[i])
-							{
-								gpio_set_level(static_cast<gpio_num_t>(GetSwitchPin(i)),0);
-								Switch_State[i]=0;
-							}
+						{
+							gpio_set_level(static_cast<gpio_num_t>(GetSwitchPin(i)),0);
+							Switch_State[i]=0;
 
-					}
+
+						}
 				}
 				else
 				{
 					gpio_set_level(static_cast<gpio_num_t>(GetSwitchPin(i)),0);
 					Switch_State[i]=0;
 
-
 				}
 
-
 			}
-
 		}
 
-            vTaskDelay(1000 / portTICK_PERIOD_MS);
-    }
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
+
+	}
 
     vTaskDelete(NULL);
 
