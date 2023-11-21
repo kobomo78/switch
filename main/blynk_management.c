@@ -305,7 +305,6 @@ void BlynkInit(void)
 	    		.server = BLYNK_SERVER
 	   	};
 
-	ESP_LOGI(TAG,"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! test_mode=%d",test_mode);
 
 	if (!test_mode)
 		snprintf(opt.token,sizeof(opt.token),"%s",BLYNK_TOKEN);
