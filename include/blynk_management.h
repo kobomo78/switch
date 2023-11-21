@@ -10,7 +10,8 @@
 
 #include "blynk.h"
 
-#define BLYNK_TOKEN "F5Bw_ABp5oD9uR655Je35xm6lDE4CbCu"
+#define BLYNK_TOKEN 		"F5Bw_ABp5oD9uR655Je35xm6lDE4CbCu"
+#define BLYNK_TOKEN_TEST 	"REv3lP7ai0jixCTWq62xl3PwhG6TVWFI"
 #define BLYNK_SERVER "109.194.141.27"
 
 #ifdef __cplusplus

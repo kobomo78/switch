@@ -10,6 +10,7 @@ static const char *TAG = "ota";
 
 extern const uint8_t server_cert_pem_start[] asm("_binary_ca_cert_pem_start");
 extern char  Ver[16];
+extern bool test_mode;
 
 esp_err_t _http_event_handler(esp_http_client_event_t *evt)
 {
@@ -88,7 +89,8 @@ void COtaUpdate::Init(void)
     if (esp_ota_get_partition_description(running, &running_app_info) == ESP_OK)
     	snprintf(Ver,sizeof(Ver),"%s",running_app_info.version);
 
-    xTaskCreate(task_ota, "task_ota", 8192, (void*)this, 5, NULL);
+    if (!test_mode)
+    	xTaskCreate(task_ota, "task_ota", 8192, (void*)this, 5, NULL);
 
 }
 

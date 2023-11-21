@@ -45,6 +45,7 @@ int8_t		Switch_Temp_Low[COUNT_SWITCH];
 int8_t		Switch_Temp_High[COUNT_SWITCH];
 
 uint32_t   counter=0;
+bool test_mode=false;
 
 char  Ver[16];
 
@@ -159,6 +160,22 @@ void Init(void)
    io_conf.pull_down_en = GPIO_PULLDOWN_ENABLE;
 
    gpio_config(&io_conf);
+
+   memset((void*)&io_conf,0,sizeof(io_conf));
+
+   io_conf.mode = GPIO_MODE_INPUT;
+   io_conf.pin_bit_mask = GPIO_INPUT_PIN_SEL;
+   io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE;
+   io_conf.pull_up_en = GPIO_PULLUP_ENABLE;
+
+   gpio_config(&io_conf);
+
+
+
+   if (gpio_get_level(GPIO_INPUT_TEST_MODE_IO_1)==0)
+	   test_mode=true;
+
+
 
    memset(SensorInfo,0,sizeof(SensorInfo));
    memset(Switch_Source,0xFF,sizeof(Switch_Source));

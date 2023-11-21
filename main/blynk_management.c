@@ -16,7 +16,7 @@ extern enum eMode 		Switch_Mode[COUNT_SWITCH];
 extern uint8_t			Switch_Source[COUNT_SWITCH];
 extern int8_t			Switch_Temp_Low[COUNT_SWITCH];
 extern int8_t			Switch_Temp_High[COUNT_SWITCH];
-
+extern bool 			test_mode;
 
 blynk_client_t *client;
 
@@ -301,10 +301,17 @@ void BlynkInit(void)
 
 	blynk_init(client);
 
-   	blynk_options_t opt = {
-    		.token = BLYNK_TOKEN,
-    		.server = BLYNK_SERVER,
-   	};
+	blynk_options_t opt = {
+	    		.server = BLYNK_SERVER
+	   	};
+
+	ESP_LOGI(TAG,"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! test_mode=%d",test_mode);
+
+	if (!test_mode)
+		snprintf(opt.token,sizeof(opt.token),"%s",BLYNK_TOKEN);
+	else
+		snprintf(opt.token,sizeof(opt.token),"%s",BLYNK_TOKEN_TEST);
+
 
    	blynk_set_options(client, &opt);
 
