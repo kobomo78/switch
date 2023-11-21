@@ -41,8 +41,8 @@ SSensorInfo SensorInfo[SENSOR_COUNT];
 uint8_t		Switch_State[COUNT_SWITCH];
 eMode 		Switch_Mode[COUNT_SWITCH];
 uint8_t		Switch_Source[COUNT_SWITCH];
-int8_t		Switch_Temp_Low[COUNT_SWITCH];
-int8_t		Switch_Temp_High[COUNT_SWITCH];
+float		Switch_Temp_Low[COUNT_SWITCH];
+float		Switch_Temp_High[COUNT_SWITCH];
 
 uint32_t   counter=0;
 bool test_mode=false;

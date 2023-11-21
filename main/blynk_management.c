@@ -14,8 +14,8 @@ extern char  			Ver[16];
 extern SSensorInfo 		SensorInfo[SENSOR_COUNT];
 extern enum eMode 		Switch_Mode[COUNT_SWITCH];
 extern uint8_t			Switch_Source[COUNT_SWITCH];
-extern int8_t			Switch_Temp_Low[COUNT_SWITCH];
-extern int8_t			Switch_Temp_High[COUNT_SWITCH];
+extern float			Switch_Temp_Low[COUNT_SWITCH];
+extern float			Switch_Temp_High[COUNT_SWITCH];
 extern bool 			test_mode;
 
 blynk_client_t *client;
@@ -123,13 +123,13 @@ void vw_handler(blynk_client_t *c, uint16_t id, const char *cmd, int argc, char 
 		case VP_SWITCH_1_TEMPERATURE_LOW:case VP_SWITCH_2_TEMPERATURE_LOW:case VP_SWITCH_3_TEMPERATURE_LOW:
 		case VP_SWITCH_4_TEMPERATURE_LOW:case VP_SWITCH_5_TEMPERATURE_LOW:
 		{
-			Switch_Temp_Low[pin-VP_SWITCH_1_TEMPERATURE_LOW]=atoi(argv[1]);
+			Switch_Temp_Low[pin-VP_SWITCH_1_TEMPERATURE_LOW]=atof(argv[1]);
 			break;
 		}
 		case VP_SWITCH_1_TEMPERATURE_HIGH:case VP_SWITCH_2_TEMPERATURE_HIGH:case VP_SWITCH_3_TEMPERATURE_HIGH:
 		case VP_SWITCH_4_TEMPERATURE_HIGH:case VP_SWITCH_5_TEMPERATURE_HIGH:
 		{
-			Switch_Temp_High[pin-VP_SWITCH_1_TEMPERATURE_HIGH]=atoi(argv[1]);
+			Switch_Temp_High[pin-VP_SWITCH_1_TEMPERATURE_HIGH]=atof(argv[1]);
 			break;
 		}
 
