@@ -194,12 +194,8 @@ void Server_Receive(void *pvParameter)
         while (1) {
             int len = recvfrom(sock, rx_buffer, sizeof(rx_buffer) - 1, 0, (struct sockaddr *)&source_addr, &socklen);
 
-            // Error occurred during receiving
-            if (len < 0) {
-                ESP_LOGI(TAG, "recvfrom failed: errno %d", errno);
-            }
             // Data received
-            else {
+            if (len >= 0) {
                 // Get the sender's ip address as string
                 if (source_addr.ss_family == PF_INET) {
                     inet_ntoa_r(((struct sockaddr_in *)&source_addr)->sin_addr, addr_str, sizeof(addr_str) - 1);
