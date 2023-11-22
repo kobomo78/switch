@@ -184,6 +184,20 @@ void vr_handler(blynk_client_t *c, uint16_t id, const char *cmd, int argc, char 
 			blynk_send(c, BLYNK_CMD_HARDWARE, 0, "sif", "vw", pin, SensorInfo[pin-VP_SENSOR_1_HUMIDITY].SensorData.humidity);
 			break;
 		}
+		case VP_CURRENT_DATE_TIME:
+		{
+			time_t now;
+			struct tm timeinfo;
+
+		    time(&now);
+		    char strftime_buf[64];
+
+		    localtime_r(&now, &timeinfo);
+		    strftime(strftime_buf, sizeof(strftime_buf), "%c", &timeinfo);
+
+			blynk_send(c, BLYNK_CMD_HARDWARE, 0, "sis", "vw", VP_CURRENT_DATE_TIME, strftime_buf);
+			break;
+		}
 
 	}
 }
