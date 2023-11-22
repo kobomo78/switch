@@ -201,78 +201,85 @@ void vr_handler(blynk_client_t *c, uint16_t id, const char *cmd, int argc, char 
 
 	}
 }
+void UpdateTableSensor(void *pvParameter)
+{
+		static uint8_t init=0;
 
+	if (blynk_get_state((blynk_client_t*)pvParameter)==BLYNK_STATE_AUTHENTICATED)
+	{
+
+		char tableCommand[16];
+
+		if (init==0)
+		{
+			snprintf(tableCommand,sizeof(tableCommand),"add");
+			init=1;
+		}
+		else
+			snprintf(tableCommand,sizeof(tableCommand),"update");
+
+		for(uint8_t i=0;i<SENSOR_COUNT;i++)
+		{
+			char szStr[16];
+
+			snprintf(szStr,sizeof(szStr),"Датчик %d",i+1);
+			if (SensorInfo[i].timer_no_data)
+				blynk_send((blynk_client_t*)pvParameter, BLYNK_CMD_HARDWARE, 0, "sisi", "vw",VP_TABLE_TEST,"select",i*4+1);
+			else
+				blynk_send((blynk_client_t*)pvParameter, BLYNK_CMD_HARDWARE, 0, "sisi", "vw",VP_TABLE_TEST,"deselect",i*4+1);
+
+			blynk_send((blynk_client_t*)pvParameter, BLYNK_CMD_HARDWARE, 0, "sisiss", "vw",VP_TABLE_TEST,tableCommand,i*4+1,szStr," ");
+
+			if (SensorInfo[i].timer_no_data)
+			{
+				snprintf(szStr,sizeof(szStr),"%d",SensorInfo[i].counter);
+				blynk_send((blynk_client_t*)pvParameter, BLYNK_CMD_HARDWARE, 0, "sisi", "vw",VP_TABLE_TEST,"select",i*4+2);
+			}
+			else
+			{
+				snprintf(szStr,sizeof(szStr)," ");
+				blynk_send((blynk_client_t*)pvParameter, BLYNK_CMD_HARDWARE, 0, "sisi", "vw",VP_TABLE_TEST,"deselect",i*4+2);
+			}
+
+			blynk_send((blynk_client_t*)pvParameter, BLYNK_CMD_HARDWARE, 0, "sisiss", "vw",VP_TABLE_TEST,tableCommand,i*4+2,"Счетчик",szStr);
+
+			if (SensorInfo[i].timer_no_data)
+			{
+				snprintf(szStr,sizeof(szStr),"%.1fC°",SensorInfo[i].SensorData.temperature);
+				blynk_send((blynk_client_t*)pvParameter, BLYNK_CMD_HARDWARE, 0, "sisi", "vw",VP_TABLE_TEST,"select",i*4+3);
+			}
+			else
+			{
+				snprintf(szStr,sizeof(szStr)," ");
+				blynk_send((blynk_client_t*)pvParameter, BLYNK_CMD_HARDWARE, 0, "sisi", "vw",VP_TABLE_TEST,"deselect",i*4+3);
+			}
+
+			blynk_send((blynk_client_t*)pvParameter, BLYNK_CMD_HARDWARE, 0, "sisiss", "vw",VP_TABLE_TEST,tableCommand,i*4+3,"Температура",szStr);
+
+			if (SensorInfo[i].timer_no_data)
+			{
+				snprintf(szStr,sizeof(szStr),"%.1f%%",SensorInfo[i].SensorData.humidity);
+				blynk_send((blynk_client_t*)pvParameter, BLYNK_CMD_HARDWARE, 0, "sisi", "vw",VP_TABLE_TEST,"select",i*4+4);
+			}
+			else
+			{
+				snprintf(szStr,sizeof(szStr)," ");
+				blynk_send((blynk_client_t*)pvParameter, BLYNK_CMD_HARDWARE, 0, "sisi", "vw",VP_TABLE_TEST,"deselect",i*4+4);
+			}
+
+			blynk_send((blynk_client_t*)pvParameter, BLYNK_CMD_HARDWARE, 0, "sisiss", "vw",VP_TABLE_TEST,tableCommand,i*4+4,"Влажность",szStr);
+		}
+	}
+
+
+}
 void Blynk_Timer(void *pvParameter)
 {
-	static uint8_t init=0;
 
 	while(1)
 	{
-		if (blynk_get_state((blynk_client_t*)pvParameter)==BLYNK_STATE_AUTHENTICATED)
-		{
 
-			char tableCommand[16];
-
-			if (init==0)
-			{
-				snprintf(tableCommand,sizeof(tableCommand),"add");
-				init=1;
-			}
-			else
-				snprintf(tableCommand,sizeof(tableCommand),"update");
-
-			for(uint8_t i=0;i<SENSOR_COUNT;i++)
-			{
-				char szStr[16];
-
-				snprintf(szStr,sizeof(szStr),"Датчик %d",i+1);
-				if (SensorInfo[i].timer_no_data)
-					blynk_send((blynk_client_t*)pvParameter, BLYNK_CMD_HARDWARE, 0, "sisi", "vw",VP_TABLE_TEST,"select",i*4+1);
-				else
-					blynk_send((blynk_client_t*)pvParameter, BLYNK_CMD_HARDWARE, 0, "sisi", "vw",VP_TABLE_TEST,"deselect",i*4+1);
-
-				blynk_send((blynk_client_t*)pvParameter, BLYNK_CMD_HARDWARE, 0, "sisiss", "vw",VP_TABLE_TEST,tableCommand,i*4+1,szStr," ");
-
-				if (SensorInfo[i].timer_no_data)
-				{
-					snprintf(szStr,sizeof(szStr),"%d",SensorInfo[i].counter);
-					blynk_send((blynk_client_t*)pvParameter, BLYNK_CMD_HARDWARE, 0, "sisi", "vw",VP_TABLE_TEST,"select",i*4+2);
-				}
-				else
-				{
-					snprintf(szStr,sizeof(szStr)," ");
-					blynk_send((blynk_client_t*)pvParameter, BLYNK_CMD_HARDWARE, 0, "sisi", "vw",VP_TABLE_TEST,"deselect",i*4+2);
-				}
-
-				blynk_send((blynk_client_t*)pvParameter, BLYNK_CMD_HARDWARE, 0, "sisiss", "vw",VP_TABLE_TEST,tableCommand,i*4+2,"Счетчик",szStr);
-
-				if (SensorInfo[i].timer_no_data)
-				{
-					snprintf(szStr,sizeof(szStr),"%.1fC°",SensorInfo[i].SensorData.temperature);
-					blynk_send((blynk_client_t*)pvParameter, BLYNK_CMD_HARDWARE, 0, "sisi", "vw",VP_TABLE_TEST,"select",i*4+3);
-				}
-				else
-				{
-					snprintf(szStr,sizeof(szStr)," ");
-					blynk_send((blynk_client_t*)pvParameter, BLYNK_CMD_HARDWARE, 0, "sisi", "vw",VP_TABLE_TEST,"deselect",i*4+3);
-				}
-
-				blynk_send((blynk_client_t*)pvParameter, BLYNK_CMD_HARDWARE, 0, "sisiss", "vw",VP_TABLE_TEST,tableCommand,i*4+3,"Температура",szStr);
-
-				if (SensorInfo[i].timer_no_data)
-				{
-					snprintf(szStr,sizeof(szStr),"%.1f%%",SensorInfo[i].SensorData.humidity);
-					blynk_send((blynk_client_t*)pvParameter, BLYNK_CMD_HARDWARE, 0, "sisi", "vw",VP_TABLE_TEST,"select",i*4+4);
-				}
-				else
-				{
-					snprintf(szStr,sizeof(szStr)," ");
-					blynk_send((blynk_client_t*)pvParameter, BLYNK_CMD_HARDWARE, 0, "sisi", "vw",VP_TABLE_TEST,"deselect",i*4+4);
-				}
-
-				blynk_send((blynk_client_t*)pvParameter, BLYNK_CMD_HARDWARE, 0, "sisiss", "vw",VP_TABLE_TEST,tableCommand,i*4+4,"Влажность",szStr);
-			}
-
+			UpdateTableSensor(pvParameter);
 
 			for(uint8_t i=0;i<COUNT_SWITCH;i++)
 			{
@@ -280,10 +287,10 @@ void Blynk_Timer(void *pvParameter)
 				SendSwitchMode(pvParameter,i);
 			}
 
+			vTaskDelay(5000 / portTICK_PERIOD_MS);
+
 		}
 
-            vTaskDelay(5000 / portTICK_PERIOD_MS);
-    }
 
     vTaskDelete(NULL);
 
