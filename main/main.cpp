@@ -44,6 +44,7 @@ eMode 		Switch_Mode[COUNT_SWITCH];
 uint8_t		Switch_Source[COUNT_SWITCH];
 float		Switch_Temp_Low[COUNT_SWITCH];
 float		Switch_Temp_High[COUNT_SWITCH];
+SSwitchStat SwitchStat[COUNT_SWITCH];
 
 uint32_t   counter=0;
 bool test_mode=false;
@@ -185,7 +186,7 @@ void Init(void)
    memset(Switch_Source,0xFF,sizeof(Switch_Source));
    memset(Switch_Temp_Low,0,sizeof(Switch_Temp_Low));
    memset(Switch_Temp_High,0,sizeof(Switch_Temp_High));
-
+   memset(SwitchStat,0,sizeof(SwitchStat));
 
 
    SetSwitchStateAfterStart();
@@ -261,8 +262,10 @@ void Save_Data_NVS_Pin(uint8_t pin)
 void Timer_Switch_State(void *pvParameter)
 {
 
+
 	while(1)
 	{
+
 		for(uint8_t i=0;i<COUNT_SWITCH;i++)
 		{
 			if (Switch_Mode[i]==AUTO)

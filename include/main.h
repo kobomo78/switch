@@ -47,4 +47,13 @@ void Save_Data_NVS_Pin(uint8_t pin);
 void Timer_Switch_State(void *pvParameter);
 
 
+typedef struct
+{
+	time_t lastOn;
+	time_t DurationOn;
+
+} SSwitchStat;
+
+
+
 #endif /* INCLUDE_MAIN_H_ */

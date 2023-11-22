@@ -17,6 +17,7 @@ extern uint8_t			Switch_Source[COUNT_SWITCH];
 extern float			Switch_Temp_Low[COUNT_SWITCH];
 extern float			Switch_Temp_High[COUNT_SWITCH];
 extern bool 			test_mode;
+extern 					SSwitchStat SwitchStat[COUNT_SWITCH];
 
 blynk_client_t *client;
 
@@ -273,6 +274,73 @@ void UpdateTableSensor(void *pvParameter)
 
 
 }
+void UpdateTableSwitchRow(void *pvParameter,uint8_t id,bool afterstart)
+{
+	char szStr[32];
+	struct tm timeinfo;
+	char strftime_buf[64];
+
+
+
+	if (afterstart)
+	{
+		snprintf(szStr,sizeof(szStr),"Розетка %d",id);
+		blynk_send((blynk_client_t*)pvParameter, BLYNK_CMD_HARDWARE, 0, "sisiss", "vw",VP_TABLE_SWITCH_STAT,"add",(id-1)*5+1,szStr," ");
+		blynk_send((blynk_client_t*)pvParameter, BLYNK_CMD_HARDWARE, 0, "sisiss", "vw",VP_TABLE_SWITCH_STAT,"add",(id-1)*5+2,"Включение"," ");
+		blynk_send((blynk_client_t*)pvParameter, BLYNK_CMD_HARDWARE, 0, "sisiss", "vw",VP_TABLE_SWITCH_STAT,"add",(id-1)*5+3," "," ");
+		blynk_send((blynk_client_t*)pvParameter, BLYNK_CMD_HARDWARE, 0, "sisiss", "vw",VP_TABLE_SWITCH_STAT,"add",(id-1)*5+4,"Время работы"," ");
+		blynk_send((blynk_client_t*)pvParameter, BLYNK_CMD_HARDWARE, 0, "sisiss", "vw",VP_TABLE_SWITCH_STAT,"add",(id-1)*5+5," "," ");
+
+	}
+	else
+	{
+
+		if (SwitchStat[id-1].lastOn!=0)
+		{
+			localtime_r(&SwitchStat[id-1].lastOn, &timeinfo);
+			strftime(strftime_buf, sizeof(strftime_buf), "%c", &timeinfo);
+		}
+		else
+			snprintf(strftime_buf, sizeof(strftime_buf), " ");
+
+
+		blynk_send((blynk_client_t*)pvParameter, BLYNK_CMD_HARDWARE, 0, "sisiss", "vw",VP_TABLE_SWITCH_STAT,"update",(id-1)*5+3,strftime_buf," ");
+
+		if (SwitchStat[id-1].DurationOn!=0)
+		{
+			struct tm *p = gmtime(&SwitchStat[id-1].DurationOn);
+			snprintf(strftime_buf,sizeof(strftime_buf),"%d days %d:%d:%d",p->tm_yday,p->tm_hour,p->tm_min,p->tm_sec);
+		}
+		else
+			snprintf(strftime_buf, sizeof(strftime_buf), " ");
+
+
+		blynk_send((blynk_client_t*)pvParameter, BLYNK_CMD_HARDWARE, 0, "sisiss", "vw",VP_TABLE_SWITCH_STAT,"update",(id-1)*5+5,strftime_buf," ");
+
+
+	}
+
+
+}
+void UpdateTableSwitch(void *pvParameter)
+{
+	static bool bAfterStart=true;
+
+	if (blynk_get_state((blynk_client_t*)pvParameter)==BLYNK_STATE_AUTHENTICATED)
+	{
+		if (bAfterStart)
+			blynk_send((blynk_client_t*)pvParameter, BLYNK_CMD_HARDWARE, 0, "sis", "vw",VP_TABLE_SWITCH_STAT,"clr");
+
+		for(uint8_t i=0;i<COUNT_SWITCH;i++)
+		  UpdateTableSwitchRow(pvParameter,i+1,bAfterStart);
+
+		if (bAfterStart)
+			bAfterStart=false;
+	}
+
+
+}
+
 void Blynk_Timer(void *pvParameter)
 {
 
@@ -280,6 +348,7 @@ void Blynk_Timer(void *pvParameter)
 	{
 
 			UpdateTableSensor(pvParameter);
+			UpdateTableSwitch(pvParameter);
 
 			for(uint8_t i=0;i<COUNT_SWITCH;i++)
 			{

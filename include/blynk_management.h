@@ -87,6 +87,7 @@ enum {
 
 
 	VP_CURRENT_DATE_TIME=100,
+	VP_TABLE_SWITCH_STAT=101,
 
 
 };
@@ -100,6 +101,8 @@ void vr_handler(blynk_client_t *c, uint16_t id, const char *cmd, int argc, char 
 void SendSwitchState(blynk_client_t* pvParameter,uint8_t pin);
 void SendSwitchMode(blynk_client_t* pvParameter,uint8_t pin);
 void UpdateTableSensor(void *pvParameter);
+void UpdateTableSwitch(void *pvParameter);
+void UpdateTableSwitchRow(void *pvParameter,uint8_t id,bool afterstart);
 
 
 #ifdef __cplusplus
