@@ -45,7 +45,7 @@ void Init(void);
 void Read_Data_NVS(void);
 void Save_Data_NVS_Pin(uint8_t pin);
 void Timer_Switch_State(void *pvParameter);
-void SetSwitchState(gpio_num_t gpio_num, uint32_t level);
+void SetSwitchState(gpio_num_t gpio_num, uint8_t state);
 
 
 typedef struct

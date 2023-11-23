@@ -40,6 +40,7 @@ static const char *TAG = "switch";
 SSensorInfo SensorInfo[SENSOR_COUNT];
 
 uint8_t		Switch_State[COUNT_SWITCH];
+uint8_t		Switch_State_NVS[COUNT_SWITCH];
 eMode 		Switch_Mode[COUNT_SWITCH];
 uint8_t		Switch_Source[COUNT_SWITCH];
 float		Switch_Temp_Low[COUNT_SWITCH];
@@ -77,11 +78,11 @@ void SetSwitchStateAfterStart(void)
 		{
 			switch(i)
 			{
-				case 0: SetSwitchState(GPIO_OUTPUT_IO_0,Switch_State[i]);break;
-				case 1: SetSwitchState(GPIO_OUTPUT_IO_1,Switch_State[i]);break;
-				case 2: SetSwitchState(GPIO_OUTPUT_IO_2,Switch_State[i]);break;
-				case 3: SetSwitchState(GPIO_OUTPUT_IO_3,Switch_State[i]);break;
-				case 4: SetSwitchState(GPIO_OUTPUT_IO_4,Switch_State[i]);break;
+				case 0: SetSwitchState(GPIO_OUTPUT_IO_0,Switch_State_NVS[i]);break;
+				case 1: SetSwitchState(GPIO_OUTPUT_IO_1,Switch_State_NVS[i]);break;
+				case 2: SetSwitchState(GPIO_OUTPUT_IO_2,Switch_State_NVS[i]);break;
+				case 3: SetSwitchState(GPIO_OUTPUT_IO_3,Switch_State_NVS[i]);break;
+				case 4: SetSwitchState(GPIO_OUTPUT_IO_4,Switch_State_NVS[i]);break;
 
 			}
 		}
@@ -90,10 +91,26 @@ void SetSwitchStateAfterStart(void)
 
 
 }
-void SetSwitchState(gpio_num_t gpio_num, uint32_t level)
+void SetSwitchState(gpio_num_t gpio_num, uint8_t state)
 {
 
-	gpio_set_level(gpio_num,level);
+	uint8_t index=static_cast<uint8_t>(gpio_num-GPIO_OUTPUT_IO_0);
+
+	if (state!=Switch_State[index])
+	{
+		gpio_set_level(gpio_num,state);
+		Switch_State[index]=state;
+
+		if (state)
+		{
+			time_t now;
+			time(&now);
+
+			SwitchStat[index].lastOn=now;
+			SwitchStat[index].DurationOn=0;
+
+		}
+	}
 
 }
 void ChangeSwitchState(uint8_t pin)
@@ -118,7 +135,6 @@ void ChangeSwitchState(uint8_t pin)
 
 		}
 
-		Switch_State[pin]=state;
 		Save_Data_NVS_Pin(pin);
 	}
 
@@ -231,10 +247,10 @@ void Read_Data_NVS(void)
 	    	if (err!=ESP_OK)
 	    		Switch_Mode[i]=HANDS;
 
-	    	err = nvs_get_u8(my_handle, State_Key[i], &Switch_State[i]);
+	    	err = nvs_get_u8(my_handle, State_Key[i], &Switch_State_NVS[i]);
 
 	    	if (err!=ESP_OK)
-	    		Switch_State[i]=0;
+	    		Switch_State_NVS[i]=0;
 	    }
 
       nvs_close(my_handle);
@@ -271,6 +287,9 @@ void Timer_Switch_State(void *pvParameter)
 
 	while(1)
 	{
+		time_t now;
+		time(&now);
+
 
 		for(uint8_t i=0;i<COUNT_SWITCH;i++)
 		{
@@ -284,33 +303,32 @@ void Timer_Switch_State(void *pvParameter)
 
 							if (SensorInfo[Switch_Source[i]].SensorData.temperature<=Switch_Temp_Low[i])
 							{
-								SetSwitchState(static_cast<gpio_num_t>(GetSwitchPin(i)),1);
-								Switch_State[i]=1;
+									SetSwitchState(static_cast<gpio_num_t>(GetSwitchPin(i)),1);
+
 							}
 							else
 								if (SensorInfo[Switch_Source[i]].SensorData.temperature>=Switch_Temp_High[i])
 								{
-									SetSwitchState(static_cast<gpio_num_t>(GetSwitchPin(i)),0);
-									Switch_State[i]=0;
+										SetSwitchState(static_cast<gpio_num_t>(GetSwitchPin(i)),0);
 								}
 
 						}
 						else
 						{
-							SetSwitchState(static_cast<gpio_num_t>(GetSwitchPin(i)),0);
-							Switch_State[i]=0;
-
-
+								SetSwitchState(static_cast<gpio_num_t>(GetSwitchPin(i)),0);
 						}
 				}
 				else
 				{
-					SetSwitchState(static_cast<gpio_num_t>(GetSwitchPin(i)),0);
-					Switch_State[i]=0;
+						SetSwitchState(static_cast<gpio_num_t>(GetSwitchPin(i)),0);
 
 				}
 
 			}
+
+			if (Switch_State[i])
+				SwitchStat[i].DurationOn=now-SwitchStat[i].lastOn;
+
 		}
 
         vTaskDelay(1000 / portTICK_PERIOD_MS);
