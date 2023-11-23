@@ -95,6 +95,16 @@ void SetSwitchState(gpio_num_t gpio_num, uint32_t level)
 
 	gpio_set_level(gpio_num,level);
 
+	if (level)
+	{
+		time_t now;
+		time(&now);
+
+		SwitchStat[static_cast<uint8_t>(gpio_num-GPIO_OUTPUT_IO_0)].lastOn=now;
+		SwitchStat[static_cast<uint8_t>(gpio_num-GPIO_OUTPUT_IO_0)].DurationOn=0;
+
+	}
+
 }
 void ChangeSwitchState(uint8_t pin)
 {
@@ -271,6 +281,9 @@ void Timer_Switch_State(void *pvParameter)
 
 	while(1)
 	{
+		time_t now;
+		time(&now);
+
 
 		for(uint8_t i=0;i<COUNT_SWITCH;i++)
 		{
@@ -311,6 +324,10 @@ void Timer_Switch_State(void *pvParameter)
 				}
 
 			}
+
+			if (Switch_State[i])
+				SwitchStat[i].DurationOn=now-SwitchStat[i].lastOn;
+
 		}
 
         vTaskDelay(1000 / portTICK_PERIOD_MS);
