@@ -77,17 +77,23 @@ void SetSwitchStateAfterStart(void)
 		{
 			switch(i)
 			{
-				case 0: gpio_set_level(GPIO_OUTPUT_IO_0,Switch_State[i]);break;
-				case 1: gpio_set_level(GPIO_OUTPUT_IO_1,Switch_State[i]);break;
-				case 2: gpio_set_level(GPIO_OUTPUT_IO_2,Switch_State[i]);break;
-				case 3: gpio_set_level(GPIO_OUTPUT_IO_3,Switch_State[i]);break;
-				case 4: gpio_set_level(GPIO_OUTPUT_IO_4,Switch_State[i]);break;
+				case 0: SetSwitchState(GPIO_OUTPUT_IO_0,Switch_State[i]);break;
+				case 1: SetSwitchState(GPIO_OUTPUT_IO_1,Switch_State[i]);break;
+				case 2: SetSwitchState(GPIO_OUTPUT_IO_2,Switch_State[i]);break;
+				case 3: SetSwitchState(GPIO_OUTPUT_IO_3,Switch_State[i]);break;
+				case 4: SetSwitchState(GPIO_OUTPUT_IO_4,Switch_State[i]);break;
 
 			}
 		}
 
 	}
 
+
+}
+void SetSwitchState(gpio_num_t gpio_num, uint32_t level)
+{
+
+	gpio_set_level(gpio_num,level);
 
 }
 void ChangeSwitchState(uint8_t pin)
@@ -104,11 +110,11 @@ void ChangeSwitchState(uint8_t pin)
 
 		switch(pin)
 		{
-			case 0: gpio_set_level(GPIO_OUTPUT_IO_0,state);break;
-			case 1: gpio_set_level(GPIO_OUTPUT_IO_1,state);break;
-			case 2: gpio_set_level(GPIO_OUTPUT_IO_2,state);break;
-			case 3: gpio_set_level(GPIO_OUTPUT_IO_3,state);break;
-			case 4: gpio_set_level(GPIO_OUTPUT_IO_4,state);break;
+			case 0: SetSwitchState(GPIO_OUTPUT_IO_0,state);break;
+			case 1: SetSwitchState(GPIO_OUTPUT_IO_1,state);break;
+			case 2: SetSwitchState(GPIO_OUTPUT_IO_2,state);break;
+			case 3: SetSwitchState(GPIO_OUTPUT_IO_3,state);break;
+			case 4: SetSwitchState(GPIO_OUTPUT_IO_4,state);break;
 
 		}
 
@@ -278,20 +284,20 @@ void Timer_Switch_State(void *pvParameter)
 
 							if (SensorInfo[Switch_Source[i]].SensorData.temperature<=Switch_Temp_Low[i])
 							{
-								gpio_set_level(static_cast<gpio_num_t>(GetSwitchPin(i)),1);
+								SetSwitchState(static_cast<gpio_num_t>(GetSwitchPin(i)),1);
 								Switch_State[i]=1;
 							}
 							else
 								if (SensorInfo[Switch_Source[i]].SensorData.temperature>=Switch_Temp_High[i])
 								{
-									gpio_set_level(static_cast<gpio_num_t>(GetSwitchPin(i)),0);
+									SetSwitchState(static_cast<gpio_num_t>(GetSwitchPin(i)),0);
 									Switch_State[i]=0;
 								}
 
 						}
 						else
 						{
-							gpio_set_level(static_cast<gpio_num_t>(GetSwitchPin(i)),0);
+							SetSwitchState(static_cast<gpio_num_t>(GetSwitchPin(i)),0);
 							Switch_State[i]=0;
 
 
@@ -299,7 +305,7 @@ void Timer_Switch_State(void *pvParameter)
 				}
 				else
 				{
-					gpio_set_level(static_cast<gpio_num_t>(GetSwitchPin(i)),0);
+					SetSwitchState(static_cast<gpio_num_t>(GetSwitchPin(i)),0);
 					Switch_State[i]=0;
 
 				}
