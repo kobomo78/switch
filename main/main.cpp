@@ -39,7 +39,7 @@ static const char *TAG = "switch";
 
 SSensorInfo SensorInfo[SENSOR_COUNT];
 
-uint8_t		Switch_State[COUNT_SWITCH];
+uint8_t		Switch_State[COUNT_SWITCH]={0,0,0,0,0};
 uint8_t		Switch_State_NVS[COUNT_SWITCH];
 eMode 		Switch_Mode[COUNT_SWITCH];
 uint8_t		Switch_Source[COUNT_SWITCH];
@@ -187,6 +187,12 @@ void Init(void)
    io_conf.pull_down_en = GPIO_PULLDOWN_ENABLE;
 
    gpio_config(&io_conf);
+
+   gpio_set_level(GPIO_OUTPUT_IO_0,0);
+   gpio_set_level(GPIO_OUTPUT_IO_1,0);
+   gpio_set_level(GPIO_OUTPUT_IO_2,0);
+   gpio_set_level(GPIO_OUTPUT_IO_3,0);
+   gpio_set_level(GPIO_OUTPUT_IO_4,0);
 
    memset((void*)&io_conf,0,sizeof(io_conf));
 
