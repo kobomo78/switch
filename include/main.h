@@ -21,6 +21,7 @@ extern "C" {
 		void ChangeSwitchMode(uint8_t pin);
 		uint8_t GetSwitchMode(uint8_t pin);
 		uint8_t GetSwitchPin(uint8_t pin);
+		uint8_t GetSwitchIndexPin(gpio_num_t gpio_num);
 
 
 #ifdef __cplusplus

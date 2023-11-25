@@ -94,7 +94,8 @@ void SetSwitchStateAfterStart(void)
 void SetSwitchState(gpio_num_t gpio_num, uint8_t state)
 {
 
-	uint8_t index=static_cast<uint8_t>(gpio_num-GPIO_OUTPUT_IO_0);
+	uint8_t index=GetSwitchIndexPin(gpio_num);
+
 
 	if (state!=Switch_State[index])
 	{
@@ -151,6 +152,43 @@ uint8_t GetSwitchPin(uint8_t pin)
 
 	}
 	return 0xFF;
+
+
+}
+uint8_t GetSwitchIndexPin(gpio_num_t gpio_num)
+{
+	if (gpio_num==GPIO_OUTPUT_IO_0)
+		return 0;
+	else
+	{
+		if (gpio_num==GPIO_OUTPUT_IO_1)
+			return 1;
+		else
+		{
+			if (gpio_num==GPIO_OUTPUT_IO_2)
+				return 2;
+			else
+			{
+				if (gpio_num==GPIO_OUTPUT_IO_3)
+					return 3;
+				else
+				{
+					if (gpio_num==GPIO_OUTPUT_IO_4)
+						return 4;
+					else
+						return 0;
+
+
+				}
+
+
+			}
+
+
+		}
+
+
+	}
 
 
 }
