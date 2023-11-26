@@ -394,6 +394,7 @@ void app_main(void)
     }
     ESP_ERROR_CHECK(ret);
 
+    ESP_LOGI(TAG,"!!!!!!!!!!!!!!!!!!!!!!!!!START switch programm!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
     Read_Data_NVS();
 
     ESP_ERROR_CHECK(esp_netif_init());
