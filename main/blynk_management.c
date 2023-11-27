@@ -94,10 +94,7 @@ void vw_handler(blynk_client_t *c, uint16_t id, const char *cmd, int argc, char 
 		case VP_SWITCH_4:case VP_SWITCH_5:
 		{
 			if (atoi(argv[1])==1)
-			{
 				ChangeSwitchState(pin-VP_SWITCH_1);
-				SendSwitchState(c,pin-VP_SWITCH_1);
-			}
 
 			break;
 
@@ -106,10 +103,7 @@ void vw_handler(blynk_client_t *c, uint16_t id, const char *cmd, int argc, char 
 		case VP_MODE_SWITCH_4:case VP_MODE_SWITCH_5:
 		{
 			if (atoi(argv[1])==1)
-			{
 				ChangeSwitchMode(pin-VP_MODE_SWITCH_1);
-				SendSwitchMode(c,pin-VP_MODE_SWITCH_1);
-			}
 
 			break;
 
@@ -198,6 +192,26 @@ void vr_handler(blynk_client_t *c, uint16_t id, const char *cmd, int argc, char 
 
 			blynk_send(c, BLYNK_CMD_HARDWARE, 0, "sis", "vw", VP_CURRENT_DATE_TIME, strftime_buf);
 			break;
+		}
+		case VP_LED_SWITCH_1:case VP_LED_SWITCH_2:case VP_LED_SWITCH_3:case VP_LED_SWITCH_4:case VP_LED_SWITCH_5:
+		{
+			if (GetSwitchState(pin-VP_LED_SWITCH_1)==0)
+				blynk_send(c, BLYNK_CMD_HARDWARE, 0, "sis", "vw", pin,"OFF");
+			else
+				blynk_send(c, BLYNK_CMD_HARDWARE, 0, "sis", "vw", pin,"ON");
+
+			break;
+		}
+		case VP_LED_MODE_SWITCH_1:case VP_LED_MODE_SWITCH_2:case VP_LED_MODE_SWITCH_3:case VP_LED_MODE_SWITCH_4:case VP_LED_MODE_SWITCH_5:
+		{
+			if (GetSwitchMode(pin-VP_LED_MODE_SWITCH_1)==0)
+				blynk_send(c, BLYNK_CMD_HARDWARE, 0, "sis", "vw", pin,"OFF");
+			else
+				blynk_send(c, BLYNK_CMD_HARDWARE, 0, "sis", "vw", pin,"ON");
+
+			break;
+
+
 		}
 
 	}
@@ -350,12 +364,6 @@ void Blynk_Timer(void *pvParameter)
 			UpdateTableSensor(pvParameter);
 			UpdateTableSwitch(pvParameter);
 
-			for(uint8_t i=0;i<COUNT_SWITCH;i++)
-			{
-				SendSwitchState(pvParameter,i);
-				SendSwitchMode(pvParameter,i);
-			}
-
 			vTaskDelay(5000 / portTICK_PERIOD_MS);
 
 		}
@@ -364,25 +372,6 @@ void Blynk_Timer(void *pvParameter)
     vTaskDelete(NULL);
 
 }
-void SendSwitchState(blynk_client_t* pvParameter,uint8_t pin)
-{
-	if (GetSwitchState(pin)==0)
-		blynk_send((blynk_client_t*)pvParameter, BLYNK_CMD_HARDWARE, 0, "sii", "vw", VP_LED_SWITCH_1+pin,0);
-	else
-		blynk_send((blynk_client_t*)pvParameter, BLYNK_CMD_HARDWARE, 0, "sii", "vw", VP_LED_SWITCH_1+pin,255);
-
-
-}
-void SendSwitchMode(blynk_client_t* pvParameter,uint8_t pin)
-{
-	if (GetSwitchMode(pin)==0)
-		blynk_send((blynk_client_t*)pvParameter, BLYNK_CMD_HARDWARE, 0, "sii", "vw", VP_LED_MODE_SWITCH_1+pin,0);
-	else
-		blynk_send((blynk_client_t*)pvParameter, BLYNK_CMD_HARDWARE, 0, "sii", "vw", VP_LED_MODE_SWITCH_1+pin,255);
-
-
-}
-
 void BlynkInit(void)
 {
 

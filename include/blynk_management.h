@@ -98,8 +98,6 @@ void BlynkInit(void);
 void state_handler(blynk_client_t *c, const blynk_state_evt_t *ev, void *data);
 void vw_handler(blynk_client_t *c, uint16_t id, const char *cmd, int argc, char **argv, void *data);
 void vr_handler(blynk_client_t *c, uint16_t id, const char *cmd, int argc, char **argv, void *data);
-void SendSwitchState(blynk_client_t* pvParameter,uint8_t pin);
-void SendSwitchMode(blynk_client_t* pvParameter,uint8_t pin);
 void UpdateTableSensor(void *pvParameter);
 void UpdateTableSwitch(void *pvParameter);
 void UpdateTableSwitchRow(void *pvParameter,uint8_t id,bool afterstart);
