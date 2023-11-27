@@ -38,7 +38,7 @@ SOFTWARE.
 
 #define BLYNK_MAX_PAYLOAD_LEN 512
 #define BLYNK_MAX_ARGS 32
-#define BLYNK_MAX_AWAITING 32
+#define BLYNK_MAX_AWAITING 64
 #define BLYNK_MAX_HANDLERS 8
 
 typedef struct _blynk_options_t blynk_options_t;
