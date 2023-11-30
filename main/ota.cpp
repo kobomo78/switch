@@ -89,8 +89,7 @@ void COtaUpdate::Init(void)
     if (esp_ota_get_partition_description(running, &running_app_info) == ESP_OK)
     	snprintf(Ver,sizeof(Ver),"%s",running_app_info.version);
 
-    if (!test_mode)
-    	xTaskCreate(task_ota, "task_ota", 8192, (void*)this, 5, NULL);
+    xTaskCreate(task_ota, "task_ota", 8192, (void*)this, 5, NULL);
 
 }
 
@@ -101,7 +100,10 @@ void  COtaUpdate::update(void)
         esp_http_client_config_t config;
         memset(&config,0,sizeof(config));
 
-        config.url=OTA_HOME_SERVER_URL;
+        if (!test_mode)
+        	config.url=OTA_HOME_SERVER_URL;
+        else
+        	config.url=OTA_HOME_SERVER_URL_TEST_MODE;
         config.port=34002;
         config.cert_pem = (char *)server_cert_pem_start;
 
