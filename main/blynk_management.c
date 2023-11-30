@@ -5,6 +5,7 @@
 #include "blynk_management.h"
 #include "protocol.h"
 
+#include "../../../esp-idf-v5.0.1/components/spi_flash/include/esp_flash.h"
 
 static const char *TAG = "blynk_management";
 
@@ -127,11 +128,13 @@ void vw_handler(blynk_client_t *c, uint16_t id, const char *cmd, int argc, char 
 			Switch_Temp_High[pin-VP_SWITCH_1_TEMPERATURE_HIGH]=atof(argv[1]);
 			break;
 		}
+		case VP_READ_CORE_BUTTON:
+		{
+			if (atoi(argv[1])==1)
+				SendCoreDump();
 
-
-
-
-
+			break;
+		}
 
 	}
 

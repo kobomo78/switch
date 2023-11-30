@@ -6,6 +6,6 @@ idf_component_register(	SRCS "main.cpp"
 						SRCS "ntp.cpp"
                     	INCLUDE_DIRS "."
                     	INCLUDE_DIRS "../include"
-                    	REQUIRES driver blynk esp_wifi esp_https_ota nvs_flash app_update
+                    	REQUIRES driver blynk esp_wifi esp_https_ota nvs_flash app_update esp_partition
                     	EMBED_FILES ${PROJECT_DIR}/cert/ca_cert.pem)
 

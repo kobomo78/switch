@@ -383,6 +383,42 @@ void Timer_Switch_State(void *pvParameter)
 
 
 }
+void SendCoreDump(void)
+{
+	esp_partition_iterator_t iterator=NULL;
+
+	iterator=esp_partition_find(ESP_PARTITION_TYPE_DATA,ESP_PARTITION_SUBTYPE_DATA_COREDUMP,NULL);
+
+	if (iterator)
+	{
+		const esp_partition_t *esp_partition;
+
+		esp_partition=esp_partition_get(iterator);
+
+		if (esp_partition)
+		{
+
+			uint8_t buffer[128];
+
+			for(uint32_t i=0;i<esp_partition->size/sizeof(buffer);i++)
+			{
+				esp_partition_read(esp_partition, 0+i*sizeof(buffer), buffer, sizeof(buffer));
+
+				Server_Send_Data_Core_Dump(buffer,sizeof(buffer));
+			}
+
+		}
+		else
+			ESP_LOGE(TAG,"esp_partition==NULL");
+
+	}
+	else
+		ESP_LOGE(TAG,"iterator==NULL");
+
+
+
+}
+
 void app_main(void)
 {
 
