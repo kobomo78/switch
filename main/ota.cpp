@@ -89,8 +89,8 @@ void COtaUpdate::Init(void)
     if (esp_ota_get_partition_description(running, &running_app_info) == ESP_OK)
     	snprintf(Ver,sizeof(Ver),"%s",running_app_info.version);
 
-    if (!test_mode)
-    	xTaskCreate(task_ota, "task_ota", 8192, (void*)this, 5, NULL);
+    //if (!test_mode)
+    xTaskCreate(task_ota, "task_ota", 8192, (void*)this, 5, NULL);
 
 }
 

@@ -20,7 +20,7 @@
 #include "esp_https_ota.h"
 
 
-#define OTA_HOME_SERVER_URL  "https://109.194.141.27:34002/firmware/switch.bin"
+#define OTA_HOME_SERVER_URL  "https://109.194.141.27:34002/firmware/switch_test.bin"
 
 esp_err_t _http_event_handler(esp_http_client_event_t *evt);
 
