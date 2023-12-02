@@ -51,6 +51,7 @@ uint32_t   counter=0;
 bool test_mode=false;
 char WorkTime[64];
 
+extern EventGroupHandle_t s_server_exchange_event_group;
 
 char  Ver[16];
 
@@ -100,6 +101,9 @@ void SetSwitchState(gpio_num_t gpio_num, uint8_t state)
 	if (state!=Switch_State[index])
 	{
 		gpio_set_level(gpio_num,state);
+
+		xEventGroupSetBits(s_server_exchange_event_group, LIMIT_ACHIEVE_BIT);
+
 		Switch_State[index]=state;
 
 		if (state)

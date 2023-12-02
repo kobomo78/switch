@@ -8,6 +8,7 @@
 #ifndef INCLUDE_SERVER_EXCHANGE_H_
 #define INCLUDE_SERVER_EXCHANGE_H_
 
+#define LIMIT_ACHIEVE_BIT BIT0
 
 bool SocketInit(void);
 void Server_Exchange(void *pvParameter);

@@ -6,6 +6,7 @@
  */
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "freertos/event_groups.h"
 #include "esp_netif.h"
 #include "math.h"
 #include "lwip/err.h"
@@ -15,6 +16,7 @@
 #include <lwip/netdb.h>
 #include "esp_log.h"
 #include "protocol.h"
+#include "Server_Exchange.h"
 #include "blynk_management.h"
 #include "cJSON.h"
 #include "esp_partition.h"
@@ -26,6 +28,7 @@
 #define SERVER_DATA_PORT	 		 34004
 #define SERVER_DATA_PORT_FOR_CORE	 34005
 
+EventGroupHandle_t s_server_exchange_event_group;
 
 static const char *TAG = "Server_Exchange";
 int sock=0;
@@ -54,6 +57,8 @@ bool SocketInit(void)
 		ESP_LOGE(TAG, "Unable to create socket sock_for_core: errno %d %s", errno,esp_err_to_name(errno));
 		return false;
 	}
+
+	s_server_exchange_event_group = xEventGroupCreate();
 
 	return true;
 
@@ -128,7 +133,13 @@ void Server_Save_Data(void *pvParameter)
 
    			cJSON_Delete(root);
 
-	        vTaskDelay(60000 / portTICK_PERIOD_MS);
+   		    xEventGroupWaitBits(s_server_exchange_event_group,
+   		            			LIMIT_ACHIEVE_BIT,
+								pdTRUE,
+								pdFALSE,
+								60000 / portTICK_PERIOD_MS);
+
+
 	    }
 
 	    vTaskDelete(NULL);
