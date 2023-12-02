@@ -28,7 +28,7 @@
 #define SERVER_DATA_PORT	 		 34004
 #define SERVER_DATA_PORT_FOR_CORE	 34005
 
-EventGroupHandle_t s_server_exchange_event_group;
+extern EventGroupHandle_t s_server_exchange_event_group;
 
 static const char *TAG = "Server_Exchange";
 int sock=0;
@@ -58,7 +58,7 @@ bool SocketInit(void)
 		return false;
 	}
 
-	s_server_exchange_event_group = xEventGroupCreate();
+
 
 	return true;
 
