@@ -51,7 +51,7 @@ uint32_t   counter=0;
 bool test_mode=false;
 char WorkTime[64];
 
-extern EventGroupHandle_t s_server_exchange_event_group;
+EventGroupHandle_t s_server_exchange_event_group;
 
 char  Ver[16];
 
@@ -439,6 +439,7 @@ void app_main(void)
 
     ESP_ERROR_CHECK(esp_netif_init());
 
+    s_server_exchange_event_group = xEventGroupCreate();
 
     xTaskCreate(&Work_counter, "Work_counter", 2048, NULL, 5, NULL );
 
