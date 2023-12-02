@@ -42,7 +42,7 @@ extern "C" {
 
 #define GPIO_INPUT_PIN_SEL  (1ULL<<GPIO_INPUT_TEST_MODE_IO_1)
 
-
+int my_log(const char *, va_list);
 void Init(void);
 void Read_Data_NVS(void);
 void Save_Data_NVS_Pin(uint8_t pin);

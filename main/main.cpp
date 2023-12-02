@@ -57,6 +57,8 @@ char  Ver[16];
 
 COtaUpdate  OtaUpdate;
 
+char log_str[256];
+
 void Work_counter(void *pvParameter)
 {
 
@@ -422,9 +424,18 @@ void SendCoreDump(void)
 
 
 }
+int my_log(const char *fmt, va_list list)
+{
+	vsnprintf(log_str,sizeof(log_str),fmt,list);
+	printf("%s",log_str);
 
+
+	return 0;
+}
 void app_main(void)
 {
+
+	esp_log_set_vprintf(my_log);
 
     //Initialize NVS
     esp_err_t ret = nvs_flash_init();
