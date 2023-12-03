@@ -124,10 +124,13 @@ void Server_Save_Data(void *pvParameter)
    				char *my_json_string = cJSON_Print(root);
    				//ESP_LOGI(TAG, "my_json_string\n%s",my_json_string);
 
-   				int err = sendto(sock, my_json_string, strlen(my_json_string), 0, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
-	            	if (err < 0) {
-	            		ESP_LOGE(TAG, "Error occurred during sending: errno %d (%s)", errno,esp_err_to_name(errno));
-	            	}
+   				if (my_json_string)
+   				{
+   					int err = sendto(sock, my_json_string, strlen(my_json_string), 0, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
+	            		if (err < 0) {
+	            			ESP_LOGE(TAG, "Error occurred during sending: errno %d (%s)", errno,esp_err_to_name(errno));
+	            		}
+   				}
 
    			}
 
