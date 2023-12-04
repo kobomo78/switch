@@ -130,6 +130,7 @@ void Server_Save_Data(void *pvParameter)
 	            		if (err < 0) {
 	            			ESP_LOGE(TAG, "Error occurred during sending: errno %d (%s)", errno,esp_err_to_name(errno));
 	            		}
+            		free(my_json_string);
    				}
 
    			}
