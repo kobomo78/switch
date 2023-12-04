@@ -3,3 +3,5 @@
 /build/bootloader/.bin_timestamp
 *.out
 /build/
+.project
+
