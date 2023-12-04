@@ -59,6 +59,7 @@ COtaUpdate  OtaUpdate;
 
 char log_str[256];
 
+
 void Work_counter(void *pvParameter)
 {
 
@@ -67,6 +68,13 @@ void Work_counter(void *pvParameter)
 		time_t seconds(counter);
 		tm *p = gmtime(&seconds);
 		snprintf(WorkTime,sizeof(WorkTime),"%d days %d:%d:%d",p->tm_yday,p->tm_hour,p->tm_min,p->tm_sec);
+
+
+		for(uint8_t i=0;i<COUNT_SWITCH;i++)
+			if (GetSwitchState(i)==0)
+				SwitchStat[i].TimeSecStateOff++;
+			else
+				SwitchStat[i].TimeSecStateOn++;
 
 
 		vTaskDelay(1000 / portTICK_PERIOD_MS );

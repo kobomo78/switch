@@ -1,5 +1,6 @@
 
 
+#include <math.h>
 #include "esp_log.h"
 #include "main.h"
 #include "blynk_management.h"
@@ -302,11 +303,14 @@ void UpdateTableSwitchRow(void *pvParameter,uint8_t id,bool afterstart)
 	if (afterstart)
 	{
 		snprintf(szStr,sizeof(szStr),"Розетка %d",id);
-		blynk_send((blynk_client_t*)pvParameter, BLYNK_CMD_HARDWARE, 0, "sisiss", "vw",VP_TABLE_SWITCH_STAT,"add",(id-1)*5+1,szStr," ");
-		blynk_send((blynk_client_t*)pvParameter, BLYNK_CMD_HARDWARE, 0, "sisiss", "vw",VP_TABLE_SWITCH_STAT,"add",(id-1)*5+2,"Включение"," ");
-		blynk_send((blynk_client_t*)pvParameter, BLYNK_CMD_HARDWARE, 0, "sisiss", "vw",VP_TABLE_SWITCH_STAT,"add",(id-1)*5+3," "," ");
-		blynk_send((blynk_client_t*)pvParameter, BLYNK_CMD_HARDWARE, 0, "sisiss", "vw",VP_TABLE_SWITCH_STAT,"add",(id-1)*5+4,"Время работы"," ");
-		blynk_send((blynk_client_t*)pvParameter, BLYNK_CMD_HARDWARE, 0, "sisiss", "vw",VP_TABLE_SWITCH_STAT,"add",(id-1)*5+5," "," ");
+		blynk_send((blynk_client_t*)pvParameter, BLYNK_CMD_HARDWARE, 0, "sisiss", "vw",VP_TABLE_SWITCH_STAT,"add",(id-1)*7+1,szStr," ");
+		blynk_send((blynk_client_t*)pvParameter, BLYNK_CMD_HARDWARE, 0, "sisiss", "vw",VP_TABLE_SWITCH_STAT,"add",(id-1)*7+2,"Последнее включение"," ");
+		blynk_send((blynk_client_t*)pvParameter, BLYNK_CMD_HARDWARE, 0, "sisiss", "vw",VP_TABLE_SWITCH_STAT,"add",(id-1)*7+3," "," ");
+		blynk_send((blynk_client_t*)pvParameter, BLYNK_CMD_HARDWARE, 0, "sisiss", "vw",VP_TABLE_SWITCH_STAT,"add",(id-1)*7+4,"Время работы"," ");
+		blynk_send((blynk_client_t*)pvParameter, BLYNK_CMD_HARDWARE, 0, "sisiss", "vw",VP_TABLE_SWITCH_STAT,"add",(id-1)*7+5," "," ");
+		blynk_send((blynk_client_t*)pvParameter, BLYNK_CMD_HARDWARE, 0, "sisiss", "vw",VP_TABLE_SWITCH_STAT,"add",(id-1)*7+6,"On/Off (%)"," ");
+		blynk_send((blynk_client_t*)pvParameter, BLYNK_CMD_HARDWARE, 0, "sisiss", "vw",VP_TABLE_SWITCH_STAT,"add",(id-1)*7+7," "," ");
+
 
 	}
 	else
@@ -321,7 +325,7 @@ void UpdateTableSwitchRow(void *pvParameter,uint8_t id,bool afterstart)
 			snprintf(strftime_buf, sizeof(strftime_buf), " ");
 
 
-		blynk_send((blynk_client_t*)pvParameter, BLYNK_CMD_HARDWARE, 0, "sisiss", "vw",VP_TABLE_SWITCH_STAT,"update",(id-1)*5+3,strftime_buf," ");
+		blynk_send((blynk_client_t*)pvParameter, BLYNK_CMD_HARDWARE, 0, "sisiss", "vw",VP_TABLE_SWITCH_STAT,"update",(id-1)*7+3,strftime_buf," ");
 
 		if (SwitchStat[id-1].DurationOn!=0)
 		{
@@ -332,8 +336,15 @@ void UpdateTableSwitchRow(void *pvParameter,uint8_t id,bool afterstart)
 			snprintf(strftime_buf, sizeof(strftime_buf), " ");
 
 
-		blynk_send((blynk_client_t*)pvParameter, BLYNK_CMD_HARDWARE, 0, "sisiss", "vw",VP_TABLE_SWITCH_STAT,"update",(id-1)*5+5,strftime_buf," ");
+		blynk_send((blynk_client_t*)pvParameter, BLYNK_CMD_HARDWARE, 0, "sisiss", "vw",VP_TABLE_SWITCH_STAT,"update",(id-1)*7+5,strftime_buf," ");
 
+		uint32_t TimeOnPlusOff=SwitchStat[id-1].TimeSecStateOn+SwitchStat[id-1].TimeSecStateOff;
+		float OnProcent=((float)SwitchStat[id-1].TimeSecStateOn/(float)TimeOnPlusOff)*100;
+
+		OnProcent=round(OnProcent);
+		snprintf(szStr,sizeof(szStr),"%d/%d",(uint8_t)OnProcent,100-(uint8_t)OnProcent);
+
+		blynk_send((blynk_client_t*)pvParameter, BLYNK_CMD_HARDWARE, 0, "sisiss", "vw",VP_TABLE_SWITCH_STAT,"update",(id-1)*7+7,szStr," ");
 
 	}
 

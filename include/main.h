@@ -52,8 +52,10 @@ void SetSwitchState(gpio_num_t gpio_num, uint8_t state);
 
 typedef struct
 {
-	time_t lastOn;
-	time_t DurationOn;
+	time_t 		lastOn;
+	time_t 		DurationOn;
+	uint32_t	TimeSecStateOn;
+	uint32_t	TimeSecStateOff;
 
 } SSwitchStat;
 
