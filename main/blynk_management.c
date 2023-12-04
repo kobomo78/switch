@@ -339,7 +339,15 @@ void UpdateTableSwitchRow(void *pvParameter,uint8_t id,bool afterstart)
 		blynk_send((blynk_client_t*)pvParameter, BLYNK_CMD_HARDWARE, 0, "sisiss", "vw",VP_TABLE_SWITCH_STAT,"update",(id-1)*7+5,strftime_buf," ");
 
 		uint32_t TimeOnPlusOff=SwitchStat[id-1].TimeSecStateOn+SwitchStat[id-1].TimeSecStateOff;
-		float OnProcent=((float)SwitchStat[id-1].TimeSecStateOn/(float)TimeOnPlusOff)*100;
+		float OnProcent=0;
+		if ((SwitchStat[id-1].TimeSecStateOn)&&(SwitchStat[id-1].TimeSecStateOff))
+			OnProcent=((float)SwitchStat[id-1].TimeSecStateOn/(float)TimeOnPlusOff)*100;
+		else
+			if (SwitchStat[id-1].TimeSecStateOn==0)
+				OnProcent=0;
+			else
+				OnProcent=100;
+
 
 		OnProcent=round(OnProcent);
 		snprintf(szStr,sizeof(szStr),"%d/%d",(uint8_t)OnProcent,100-(uint8_t)OnProcent);
