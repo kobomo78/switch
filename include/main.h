@@ -23,6 +23,9 @@ extern "C" {
 		uint8_t GetSwitchPin(uint8_t pin);
 		uint8_t GetSwitchIndexPin(gpio_num_t gpio_num);
 		void SendCoreDump(void);
+		float  Get_GlobalPower(void);
+		double Get_GlobalMoney(void);
+
 
 
 #ifdef __cplusplus

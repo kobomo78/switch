@@ -217,6 +217,21 @@ void vr_handler(blynk_client_t *c, uint16_t id, const char *cmd, int argc, char 
 
 
 		}
+		case VP_GLOBAL_KWT:
+		{
+			char szStr[16];
+			snprintf(szStr,sizeof(szStr),"%.2f кВт",Get_GlobalPower());
+			blynk_send(c, BLYNK_CMD_HARDWARE, 0, "sis", "vw", VP_GLOBAL_KWT, szStr);
+			break;
+		}
+		case VP_GLOBAL_MONEY:
+		{
+			char szStr[16];
+			snprintf(szStr,sizeof(szStr),"%.2f руб.",Get_GlobalMoney());
+			blynk_send(c, BLYNK_CMD_HARDWARE, 0, "sis", "vw", VP_GLOBAL_MONEY, szStr);
+			break;
+		}
+
 
 	}
 }

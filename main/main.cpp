@@ -17,6 +17,7 @@
 #include "esp_log.h"
 #include "nvs_flash.h"
 #include "esp_netif.h"
+#include <math.h>
 
 #include "lwip/err.h"
 #include "lwip/sys.h"
@@ -422,6 +423,24 @@ void Timer_Switch_State(void *pvParameter)
 
 
 }
+float Get_GlobalPower(void)
+{
+
+	uint32_t Time=0;
+
+	for(uint8_t i=0;i<SENSOR_COUNT;i++)
+		Time+=SwitchStat[i].GlobalTimeSecStateOn;
+
+
+	return (float)((PASSPORT_POWER_SWITCH/(float)3600)*Time)/1000;
+
+}
+double Get_GlobalMoney(void)
+{
+	return Get_GlobalPower()*TARIF_1_KWT;
+
+}
+
 void SendCoreDump(void)
 {
 	esp_partition_iterator_t iterator=NULL;

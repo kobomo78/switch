@@ -11,6 +11,8 @@
 #define TYPE_GET_DATA    1
 #define TYPE_DATA        2
 
+#define PASSPORT_POWER_SWITCH    2200
+#define TARIF_1_KWT    			 4.24
 
 enum eMode
 {
