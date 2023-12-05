@@ -72,9 +72,15 @@ void Work_counter(void *pvParameter)
 
 		for(uint8_t i=0;i<COUNT_SWITCH;i++)
 			if (GetSwitchState(i)==0)
-				SwitchStat[i].TimeSecStateOff++;
+			{
+				SwitchStat[i].GlobalTimeSecStateOff++;
+				SwitchStat[i].LastTimeSecStateOff++;
+			}
 			else
-				SwitchStat[i].TimeSecStateOn++;
+			{
+				SwitchStat[i].GlobalTimeSecStateOn++;
+				SwitchStat[i].LastTimeSecStateOn++;
+			}
 
 
 		vTaskDelay(1000 / portTICK_PERIOD_MS );
@@ -113,6 +119,25 @@ void SetSwitchState(gpio_num_t gpio_num, uint8_t state)
 		gpio_set_level(gpio_num,state);
 
 		xEventGroupSetBits(s_server_exchange_event_group, LIMIT_ACHIEVE_BIT);
+
+		if (state)
+		{
+
+			if (SwitchStat[index].LastTimeSecStateOn)
+			{
+				SwitchStat[index].LastTimeStateOnRelationStateOff=(float)SwitchStat[index].LastTimeSecStateOn/(float)(SwitchStat[index].LastTimeSecStateOn+SwitchStat[index].LastTimeSecStateOff);
+				SwitchStat[index].LastTimeSecStateOn=0;
+			}
+			else
+			{
+				SwitchStat[index].LastTimeStateOnRelationStateOff=0;
+
+			}
+
+			SwitchStat[index].LastTimeSecStateOff=0;
+
+		}
+
 
 		Switch_State[index]=state;
 

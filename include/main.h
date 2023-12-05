@@ -54,8 +54,11 @@ typedef struct
 {
 	time_t 		lastOn;
 	time_t 		DurationOn;
-	uint32_t	TimeSecStateOn;
-	uint32_t	TimeSecStateOff;
+	uint32_t	GlobalTimeSecStateOn;
+	uint32_t	GlobalTimeSecStateOff;
+	uint32_t	LastTimeSecStateOn;
+	uint32_t	LastTimeSecStateOff;
+	float		LastTimeStateOnRelationStateOff;
 
 } SSwitchStat;
 
