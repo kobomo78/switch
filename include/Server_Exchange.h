@@ -14,6 +14,7 @@ bool SocketInit(void);
 void Server_Exchange(void *pvParameter);
 void Server_Receive(void *pvParameter);
 void Server_Save_Data(void *pvParameter);
+void Server_Save_Data_Power(void *pvParameter);
 void Server_Send_Data_Core_Dump(uint8_t *pData,uint16_t length);
 
 

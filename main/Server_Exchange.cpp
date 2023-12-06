@@ -20,6 +20,7 @@
 #include "blynk_management.h"
 #include "cJSON.h"
 #include "esp_partition.h"
+#include "main.h"
 
 
 #define PORT		 34004
@@ -27,6 +28,7 @@
 #define SERVER_DATA_IP_ADDR 		 "109.194.141.27"
 #define SERVER_DATA_PORT	 		 34004
 #define SERVER_DATA_PORT_FOR_CORE	 34005
+#define SERVER_DATA_PORT_POWER 		 34006
 
 extern EventGroupHandle_t s_server_exchange_event_group;
 
@@ -35,6 +37,9 @@ int sock=0;
 int sock_for_core=0;
 
 extern SSensorInfo SensorInfo[SENSOR_COUNT];
+extern SSwitchStat SwitchStat[COUNT_SWITCH];
+extern bool bNtpSyncComplete;
+extern uint32_t   counter;
 
 bool SocketInit(void)
 {
@@ -149,6 +154,79 @@ void Server_Save_Data(void *pvParameter)
 	    vTaskDelete(NULL);
 
 }
+void Server_Save_Data_Power(void *pvParameter)
+{
+
+	struct sockaddr_in dest_addr;
+	dest_addr.sin_addr.s_addr = inet_addr(SERVER_DATA_IP_ADDR);
+	dest_addr.sin_family = AF_INET;
+	dest_addr.sin_port = htons(SERVER_DATA_PORT_POWER);
+
+
+    	while(1)
+    	{
+
+    		if (bNtpSyncComplete)
+    		{
+
+    			time_t now;
+    			struct tm timeinfo;
+				time(&now);
+				localtime_r(&now, &timeinfo);
+
+				if ((timeinfo.tm_min==0)&&(timeinfo.tm_sec==0)&&(counter>3600))
+				{
+					char data[512];
+					cJSON *root,*fmt;
+					char str[16];
+
+					root = cJSON_CreateObject();
+
+					if (root)
+					{
+
+						snprintf(str,sizeof(str),"%.2f",Get_HourMoney());
+						cJSON_AddStringToObject(root,"hour_power",str);
+
+						if ((timeinfo.tm_hour==0)&&(counter>3600*24))
+							snprintf(str,sizeof(str),"%.2f",Get_DayMoney());
+						else
+							snprintf(str,sizeof(str),"0");
+
+
+						cJSON_AddStringToObject(root,"day_power",str);
+
+
+						char *my_json_string = cJSON_Print(root);
+
+						if (my_json_string)
+						{
+							int err = sendto(sock, my_json_string, strlen(my_json_string), 0, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
+								if (err < 0) {
+									ESP_LOGE(TAG, "Error occurred during sending Server_Save_Data_Power: errno %d (%s)", errno,esp_err_to_name(errno));
+								}
+							free(my_json_string);
+						}
+
+						ClearHourPower();
+						ClearDayPower();
+
+						cJSON_Delete(root);
+
+					}
+
+				}
+
+    		}
+
+   			vTaskDelay(1000 / portTICK_PERIOD_MS);
+
+	    }
+
+	    vTaskDelete(NULL);
+
+}
+
 void Server_Exchange(void *pvParameter)
 {
 	uint32_t br_addr=0;

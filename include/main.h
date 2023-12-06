@@ -25,6 +25,8 @@ extern "C" {
 		void SendCoreDump(void);
 		float  Get_GlobalPower(void);
 		double Get_GlobalMoney(void);
+		double Get_HourMoney(void);
+		double Get_DayMoney(void);
 
 
 
@@ -51,6 +53,10 @@ void Read_Data_NVS(void);
 void Save_Data_NVS_Pin(uint8_t pin);
 void Timer_Switch_State(void *pvParameter);
 void SetSwitchState(gpio_num_t gpio_num, uint8_t state);
+float GetHourPower(void);
+void  ClearHourPower(void);
+float GetDayPower(void);
+void  ClearDayPower(void);
 
 
 typedef struct
@@ -62,6 +68,8 @@ typedef struct
 	uint32_t	LastTimeSecStateOn;
 	uint32_t	LastTimeSecStateOff;
 	float		LastTimeStateOnRelationStateOff;
+	uint32_t	LastHourTimeSecStateOn;
+	uint32_t	LastDayTimeSecStateOn;
 
 } SSwitchStat;
 

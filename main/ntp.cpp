@@ -19,6 +19,7 @@
 
 
 static const char *TAG = "ntp";
+bool bNtpSyncComplete=false;
 
 void task_ntp(void *arg)
 {
@@ -61,6 +62,7 @@ void task_ntp(void *arg)
 void time_sync_notification_cb(struct timeval *tv)
 {
     ESP_LOGI(TAG, "Notification of a time synchronization event");
+    bNtpSyncComplete=true;
 }
 
 void ntp_start(void)

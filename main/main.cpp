@@ -81,6 +81,8 @@ void Work_counter(void *pvParameter)
 			{
 				SwitchStat[i].GlobalTimeSecStateOn++;
 				SwitchStat[i].LastTimeSecStateOn++;
+				SwitchStat[i].LastHourTimeSecStateOn++;
+				SwitchStat[i].LastDayTimeSecStateOn++;
 			}
 
 
@@ -435,11 +437,59 @@ float Get_GlobalPower(void)
 	return (float)((PASSPORT_POWER_SWITCH/(float)3600)*Time)/1000;
 
 }
+float GetHourPower(void)
+{
+
+	uint32_t Time=0;
+
+	for(uint8_t i=0;i<SENSOR_COUNT;i++)
+		Time+=SwitchStat[i].LastHourTimeSecStateOn;
+
+
+	return (float)((PASSPORT_POWER_SWITCH/(float)3600)*Time)/1000;
+
+
+}
+void  ClearHourPower(void)
+{
+	for(uint8_t i=0;i<SENSOR_COUNT;i++)
+		SwitchStat[i].LastHourTimeSecStateOn=0;
+}
+float GetDayPower(void)
+{
+
+	uint32_t Time=0;
+
+	for(uint8_t i=0;i<SENSOR_COUNT;i++)
+		Time+=SwitchStat[i].LastDayTimeSecStateOn;
+
+
+	return (float)((PASSPORT_POWER_SWITCH/(float)3600)*Time)/1000;
+
+
+}
+void  ClearDayPower(void)
+{
+	for(uint8_t i=0;i<SENSOR_COUNT;i++)
+		SwitchStat[i].LastDayTimeSecStateOn=0;
+}
+
 double Get_GlobalMoney(void)
 {
 	return Get_GlobalPower()*TARIF_1_KWT;
 
 }
+double Get_HourMoney(void)
+{
+	return GetHourPower()*TARIF_1_KWT;
+
+}
+double Get_DayMoney(void)
+{
+	return GetDayPower()*TARIF_1_KWT;
+
+}
+
 
 void SendCoreDump(void)
 {
@@ -517,6 +567,7 @@ void app_main(void)
     		xTaskCreate(&Server_Exchange, "Server_Exchange", 4096, NULL, 5, NULL );
     		xTaskCreate(&Server_Receive, "Server_Receive", 4096, NULL, 5, NULL );
     		xTaskCreate(&Server_Save_Data, "Server_Save_Data", 4096, NULL, 5, NULL );
+    		xTaskCreate(&Server_Save_Data_Power, "Server_Save_Data_Power", 4096, NULL, 5, NULL );
     		xTaskCreate(&task_ntp, "task_ntp", 4096, NULL, 5, NULL );
     	}
 
