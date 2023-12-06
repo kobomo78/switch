@@ -40,6 +40,7 @@ extern SSensorInfo SensorInfo[SENSOR_COUNT];
 extern SSwitchStat SwitchStat[COUNT_SWITCH];
 extern bool bNtpSyncComplete;
 extern uint32_t   counter;
+extern bool test_mode;
 
 bool SocketInit(void)
 {
@@ -96,51 +97,54 @@ void Server_Save_Data(void *pvParameter)
     	while(1)
     	{
 
-    		char data[512];
+    		if (!test_mode)
+    		{
+				char data[512];
 
-    		cJSON *root,*fmt;
-   			root = cJSON_CreateObject();
-   			bool bNeedSend=false;
+				cJSON *root,*fmt;
+				root = cJSON_CreateObject();
+				bool bNeedSend=false;
 
-   			for(uint8_t i=0;i<SENSOR_COUNT;i++)
-   			{
-					char str[16];
-					snprintf(str,sizeof(str),"sensor_%d",i);
-					cJSON_AddItemToObject(root, str, fmt=cJSON_CreateObject());
-	   				if (SensorInfo[i].timer_no_data)
-	   				{
-						snprintf(str,sizeof(str),"%.1f",SensorInfo[i].SensorData.temperature);
-						cJSON_AddStringToObject(fmt,"temperature",str);
-						snprintf(str,sizeof(str),"%.1f",SensorInfo[i].SensorData.humidity);
-						cJSON_AddStringToObject(fmt,"humidity",str);
-						bNeedSend=true;
-	   				}
-	   				else
-	   				{
-						cJSON_AddStringToObject(fmt,"temperature","0");
-						cJSON_AddStringToObject(fmt,"humidity","0");
+				for(uint8_t i=0;i<SENSOR_COUNT;i++)
+				{
+						char str[16];
+						snprintf(str,sizeof(str),"sensor_%d",i);
+						cJSON_AddItemToObject(root, str, fmt=cJSON_CreateObject());
+						if (SensorInfo[i].timer_no_data)
+						{
+							snprintf(str,sizeof(str),"%.1f",SensorInfo[i].SensorData.temperature);
+							cJSON_AddStringToObject(fmt,"temperature",str);
+							snprintf(str,sizeof(str),"%.1f",SensorInfo[i].SensorData.humidity);
+							cJSON_AddStringToObject(fmt,"humidity",str);
+							bNeedSend=true;
+						}
+						else
+						{
+							cJSON_AddStringToObject(fmt,"temperature","0");
+							cJSON_AddStringToObject(fmt,"humidity","0");
 
-	   				}
+						}
 
-   			}
+				}
 
-   			if (bNeedSend)
-   			{
-   				char *my_json_string = cJSON_Print(root);
-   				//ESP_LOGI(TAG, "my_json_string\n%s",my_json_string);
+				if (bNeedSend)
+				{
+					char *my_json_string = cJSON_Print(root);
+					//ESP_LOGI(TAG, "my_json_string\n%s",my_json_string);
 
-   				if (my_json_string)
-   				{
-   					int err = sendto(sock, my_json_string, strlen(my_json_string), 0, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
-	            		if (err < 0) {
-	            			ESP_LOGE(TAG, "Error occurred during sending: errno %d (%s)", errno,esp_err_to_name(errno));
-	            		}
-            		free(my_json_string);
-   				}
+					if (my_json_string)
+					{
+						int err = sendto(sock, my_json_string, strlen(my_json_string), 0, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
+							if (err < 0) {
+								ESP_LOGE(TAG, "Error occurred during sending: errno %d (%s)", errno,esp_err_to_name(errno));
+							}
+						free(my_json_string);
+					}
 
-   			}
+				}
 
-   			cJSON_Delete(root);
+				cJSON_Delete(root);
+    		}
 
    		    xEventGroupWaitBits(s_server_exchange_event_group,
    		            			LIMIT_ACHIEVE_BIT,
@@ -166,7 +170,7 @@ void Server_Save_Data_Power(void *pvParameter)
     	while(1)
     	{
 
-    		if (bNtpSyncComplete)
+    		if ((bNtpSyncComplete)&&(!test_mode))
     		{
 
     			time_t now;
