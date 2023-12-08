@@ -213,7 +213,9 @@ void Server_Save_Data_Power(void *pvParameter)
 						}
 
 						ClearHourPower();
-						ClearDayPower();
+
+						if (timeinfo.tm_hour==0)
+							ClearDayPower();
 
 						cJSON_Delete(root);
 
